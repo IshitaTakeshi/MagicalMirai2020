@@ -119,28 +119,28 @@ void main(){
     float dist = getSegment(t, pos, 0.0, scale);
     float glow = getGlow(dist, radius, intensity);
 
-    vec3 col = vec3(0.0);
+    vec3 color = vec3(0.0);
 
     //White core
-    col += 10.0*vec3(smoothstep(0.003, 0.001, dist));
+    color += 10.0 * vec3(smoothstep(0.003, 0.001, dist));
     //Pink glow
-    col += glow * vec3(1.0,0.05,0.3);
+    color += glow * vec3(1.0,0.05,0.3);
 
     //Get second segment
     dist = getSegment(t, pos, 3.4, scale);
     glow = getGlow(dist, radius, intensity);
 
     //White core
-    col += 10.0*vec3(smoothstep(0.003, 0.001, dist));
+    color += 10.0*vec3(smoothstep(0.003, 0.001, dist));
     //Blue glow
-    col += glow * vec3(0.1,0.4,1.0);
+    color += glow * vec3(0.1,0.4,1.0);
 
     //Tone mapping
-    col = 1.0 - exp(-col);
+    color = 1.0 - exp(-color);
 
     //Gamma
-    col = pow(col, vec3(0.4545));
+    color = pow(color, vec3(0.4545));
 
     //Output to screen
-    gl_FragColor = vec4(col,1.0);
+    gl_FragColor = vec4(color,1.0);
 }
