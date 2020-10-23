@@ -6,7 +6,9 @@ vec2 resolution = vec2(width, height);
 
 uniform float time;
 
-#define POINT_COUNT 8
+#define PI 3.1415926538
+
+#define POINT_COUNT 4
 
 vec2 points[POINT_COUNT];
 const float speed = -0.5;
@@ -73,11 +75,9 @@ float sdBezier(vec2 pos, vec2 A, vec2 B, vec2 C){
 }
 
 
-//http://mathworld.wolfram.com/HeartCurve.html
 vec2 getHeartPosition(float t){
-    return vec2(16.0 * sin(t) * sin(t) * sin(t),
-            -(13.0 * cos(t) - 5.0 * cos(2.0*t)
-                - 2.0 * cos(3.0*t) - cos(4.0*t)));
+    float scale = 2.0;
+    return vec2(scale * (abs(sin(t)) - 0.5), 0.0);
 }
 
 //https://www.shadertoy.com/view/3s3GDn
@@ -85,38 +85,41 @@ float getGlow(float dist, float radius, float intensity){
     return pow(radius/dist, intensity);
 }
 
-float getSegment(float t, vec2 pos, float offset, float scale){
-    for(int i = 0; i < POINT_COUNT; i++){
-        points[i] = getHeartPosition(offset + float(i)*len + fract(speed * t) * 6.28);
+float drawSmooth(vec2 pos, vec2 points[POINT_COUNT]) {
+  vec2 c = (points[0] + points[1]) / 2.0;
+  vec2 c_prev;
+  float dist = 10000.0;
+
+  for(int i = 0; i < POINT_COUNT-1; i++){
+      //https://tinyurl.com/y2htbwkm
+      c_prev = c;
+      c = (points[i] + points[i+1]) / 2.0;
+      dist = min(dist, sdBezier(pos, c_prev, points[i], c));
+  }
+  return max(0.0, dist);
+}
+
+float getSegment(float t, vec2 pos) {
+    t = fract(t);
+    for(int i = 0; i < POINT_COUNT; i++) {
+        points[i] = getHeartPosition(float(i) * 0.1 + t * 0.5 * PI);
     }
 
-    vec2 c = (points[0] + points[1]) / 2.0;
-    vec2 c_prev;
-    float dist = 10000.0;
-
-    for(int i = 0; i < POINT_COUNT-1; i++){
-        //https://tinyurl.com/y2htbwkm
-        c_prev = c;
-        c = (points[i] + points[i+1]) / 2.0;
-        dist = min(dist, sdBezier(pos, scale * c_prev, scale * points[i], scale * c));
-    }
-    return max(0.0, dist);
+    return drawSmooth(pos, points);
 }
 
 void main(){
     vec2 uv = gl_FragCoord.xy/resolution.xy;
     float widthHeightRatio = resolution.x/resolution.y;
     vec2 centre = vec2(0.5, 0.5);
-    vec2 pos = centre - uv;
-    pos.y /= widthHeightRatio;
+    vec2 pos = uv - centre;
     //Shift upwards to centre heart
-    pos.y += 0.02;
-    float scale = 0.000015 * height;
+    float scale = 1.0;
 
     float t = time;
 
     //Get first segment
-    float dist = getSegment(t, pos, 0.0, scale);
+    float dist = getSegment(t, pos);
     float glow = getGlow(dist, radius, intensity);
 
     vec3 color = vec3(0.0);
@@ -125,15 +128,6 @@ void main(){
     color += 10.0 * vec3(smoothstep(0.003, 0.001, dist));
     //Pink glow
     color += glow * vec3(1.0,0.05,0.3);
-
-    //Get second segment
-    dist = getSegment(t, pos, 3.4, scale);
-    glow = getGlow(dist, radius, intensity);
-
-    //White core
-    color += 10.0*vec3(smoothstep(0.003, 0.001, dist));
-    //Blue glow
-    color += glow * vec3(0.1,0.4,1.0);
 
     //Tone mapping
     color = 1.0 - exp(-color);
