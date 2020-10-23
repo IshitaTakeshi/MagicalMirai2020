@@ -8,7 +8,7 @@ vec2 resolution = vec2(width, height);
 
 uniform float time;
 
-#define POINT_COUNT 2
+#define POINT_COUNT 4
 
 vec2 points[POINT_COUNT];
 const float speed = -0.5;
@@ -75,11 +75,9 @@ float sdBezier(vec2 pos, vec2 A, vec2 B, vec2 C){
 }
 
 
-//http://mathworld.wolfram.com/HeartCurve.html
-vec2 getHeartPosition(float t) {
-  t = fract(t);
-  float scale = 2.0;
-  return vec2(scale * (sin(0.5 * PI * t) - 0.5), 0.0);
+vec2 getHeartPosition(float t){
+    float scale = 2.0;
+    return vec2(scale * (abs(sin(t)) - 0.5), 0.0);
 }
 
 //https://www.shadertoy.com/view/3s3GDn
@@ -87,19 +85,27 @@ float getGlow(float dist, float radius, float intensity){
     return pow(radius/dist, intensity);
 }
 
-float getSegment(float t, vec2 pos, float offset, float scale){
-    for(int i = 0; i < POINT_COUNT; i++){
-        points[i] = getHeartPosition(t);
+float drawSmooth(vec2 pos, vec2 points[POINT_COUNT]) {
+  vec2 c = (points[0] + points[1]) / 2.0;
+  vec2 c_prev;
+  float dist = 10000.0;
+
+  for(int i = 0; i < POINT_COUNT-1; i++){
+      //https://tinyurl.com/y2htbwkm
+      c_prev = c;
+      c = (points[i] + points[i+1]) / 2.0;
+      dist = min(dist, sdBezier(pos, c_prev, points[i], c));
+  }
+  return max(0.0, dist);
+}
+
+float getSegment(float t, vec2 pos) {
+    t = fract(t);
+    for(int i = 0; i < POINT_COUNT; i++) {
+        points[i] = getHeartPosition(float(i) * 0.1 + t * 0.5 * PI);
     }
 
-    float dist = 10000.0;
-
-    for(int i = 0; i < POINT_COUNT-1; i++){
-        //https://tinyurl.com/y2htbwkm
-        vec2 c = (points[i] + points[i+1]) / 2.0;
-        dist = min(dist, sdBezier(pos, scale * points[i], scale * c, scale * points[i+1]));
-    }
-    return max(0.0, dist);
+    return drawSmooth(pos, points);
 }
 
 void main(){
@@ -107,16 +113,13 @@ void main(){
     float widthHeightRatio = resolution.x/resolution.y;
     vec2 centre = vec2(0.5, 0.5);
     vec2 pos = uv - centre;
-
-    // pos.y /= widthHeightRatio;
     //Shift upwards to centre heart
-    // pos.y += 0.02;
-    float scale = 1.0; // 0.000015 * height;
+    float scale = 1.0;
 
     float t = time;
 
     //Get first segment
-    float dist = getSegment(t, pos, 0.0, scale);
+    float dist = getSegment(t, pos);
     float glow = getGlow(dist, radius, intensity);
 
     vec3 color = vec3(0.0);
