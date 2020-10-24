@@ -189,6 +189,12 @@ draw();
 // const SONG_URL = "https://www.youtube.com/watch?v=KdNHFKTKX2s";
 const SONG_URL = "https://www.youtube.com/watch?v=XSLhsjepelI";
 
+const animateText = function (now, unit) {
+  if (unit.contains(now)) {
+    document.querySelector("#lyrics").textContent = unit.text;
+  }
+};
+
 player.addListener({
   onAppReady: (app) => {
     if (!app.managed) {
@@ -218,10 +224,10 @@ player.addListener({
   },
 
   onTimerReady: () => {
-    let w = player.video.firstChar;
-    // while(w && w.next) {
-    //   w.animate = textParticleGenerator.generate;
-    //   w = w.next;
-    // }
+    let w = player.video.firstPhrase;
+    while(w && w.next) {
+      w.animate = animateText;
+      w = w.next;
+    }
   }
 });
