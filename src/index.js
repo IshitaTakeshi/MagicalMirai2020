@@ -164,13 +164,11 @@ function sendBeatPositionToShader(beat) {
   gl.uniform1i(beatExistsHandle, 1);
   const beatPosition = calcBeatPosition(player.timer.position, beat.startTime, beat.endTime);
   // console.log(beatPosition);
-  console.log(beat.position);
   gl.uniform1i(beatIndexHandle, beat.position);
   gl.uniform1f(beatPositionHandle, beatPosition);
 }
 
 function draw(){
-
   //Update time
 	thisFrame = Date.now();
   time += (thisFrame - lastFrame)/1000;
@@ -180,8 +178,24 @@ function draw(){
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
   requestAnimationFrame(draw);
-  const beat = player.findBeat(player.timer.position);
+
+  if(!player || !player.video || !player.timer) {
+    return;
+  }
+
+  const position = player.timer.position;
+  const beat = player.findBeat(position);
   sendBeatPositionToShader(beat);
+  if (!player.timer.isPlaying) {
+    return;
+  }
+
+  let phrase = player.video.findPhrase(position);
+  if (!phrase) {
+    document.querySelector("#lyrics").textContent = "";
+    return;
+  }
+  document.querySelector("#lyrics").textContent = phrase.text;
 }
 
 draw();
@@ -223,11 +237,5 @@ player.addListener({
     console.log("player.onStop");
   },
 
-  onTimerReady: () => {
-    let w = player.video.firstPhrase;
-    while(w && w.next) {
-      w.animate = animateText;
-      w = w.next;
-    }
-  }
+  onTimerReady: () => {}
 });
