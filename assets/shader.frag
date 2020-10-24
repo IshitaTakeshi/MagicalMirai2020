@@ -7,6 +7,7 @@ vec2 resolution = vec2(width, height);
 #define PI 3.1415926538
 
 uniform float beatPosition;
+uniform int beatExists;
 uniform float lineY;
 
 #define POINT_COUNT 4
@@ -119,11 +120,12 @@ void main(){
     float scale = 1.0;
 
     //Get first segment
-    if (beatPosition < 0.0) {
+    if (beatExists == 0) {
       //Output to screen
       gl_FragColor = vec4(vec3(0.0), 1.0);
       return;
     }
+
     float dist = getSegment(pos, beatPosition);
     float glow = getGlow(dist, radius, intensity);
 

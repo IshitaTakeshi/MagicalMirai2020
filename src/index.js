@@ -69,7 +69,6 @@ function onWindowResize(){
   gl.uniform1f(heightHandle, window.innerHeight);
 }
 
-
 //Compile shader and combine with source
 function compileShader(shaderSource, shaderType){
   var shader = gl.createShader(shaderType);
@@ -141,6 +140,7 @@ gl.vertexAttribPointer(
 
 //Set uniform handle
 var beatPositionHandle = getUniformLocation(program, 'beatPosition');
+var beatExistsHandle = getUniformLocation(program, 'beatExists');
 var lineYHandle = getUniformLocation(program, 'lineY');
 var widthHandle = getUniformLocation(program, 'width');
 var heightHandle = getUniformLocation(program, 'height');
@@ -150,6 +150,23 @@ gl.uniform1f(heightHandle, window.innerHeight);
 
 var lastFrame = Date.now();
 var thisFrame;
+
+function calcBeatPosition(time, startTime, endTime) {
+  return (time - startTime) / (endTime - startTime);
+}
+
+function sendBeatPositionToShader(beat) {
+  if (beat == null) {
+    gl.uniform1i(beatExistsHandle, 0);
+    return;
+  }
+
+  gl.uniform1i(beatExistsHandle, 1);
+  const beatPosition = calcBeatPosition(player.timer.position, beat.startTime, beat.endTime);
+  console.log(beatPosition);
+  gl.uniform1f(lineYHandle, beat.position * 0.2 - 0.5);
+  gl.uniform1f(beatPositionHandle, beatPosition);
+}
 
 function draw(){
 
@@ -163,15 +180,7 @@ function draw(){
 
   requestAnimationFrame(draw);
   const beat = player.findBeat(player.timer.position);
-  if(beat != null) {
-    const beatPosition = (player.timer.position - beat.startTime) / (beat.endTime - beat.startTime);
-    console.log(beatPosition);
-    gl.uniform1f(lineYHandle, beat.position * 0.2 - 0.5);
-    gl.uniform1f(beatPositionHandle, beatPosition);
-  } else {
-    gl.uniform1f(lineYHandle, -1.0);
-    gl.uniform1f(beatPositionHandle, -1.0);
-  }
+  sendBeatPositionToShader(beat);
 }
 
 draw();
