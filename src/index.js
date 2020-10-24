@@ -1,5 +1,42 @@
+// This code is based on the al-ro's work
+//
+// Copyright (c) 2020 - Jun Kato, al-ro, Takeshi Ishita - https://codepen.io/al-ro/pen/vYYYRaJ
+//
+// Permission is hereby granted, free of charge, to any person
+// obtaining a copy of this software and associated documentation
+// files (the "Software"), to deal in the Software without restriction,
+//  including without limitation the rights to use, copy, modify,
+// merge, publish, distribute, sublicense, and/or sell copies of
+// the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall
+// be included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+
+import { Player, Ease } from "textalive-app-api";
 import * as vertexSourceDict from '../assets/shader.vert';
 import * as fragmentSourceDict from '../assets/shader.frag';
+
+console.log("This code is provided under the MIT license with the following authors");
+console.log("Jun Kato <i@junkato.jp> (https://junkato.jp)");
+console.log("Takeshi Ishita <ishitah.takeshi@gmail.com> (https://ishitatakeshi.netlify.com/)");
+
+const player = new Player({
+  app: {
+    appAuthor: "TextAlive",
+    appName: "p5.js example",
+  },
+  mediaElement: "#media",
+});
 
 var canvas = document.getElementById("canvas");
 
@@ -93,16 +130,18 @@ gl.bufferData(gl.ARRAY_BUFFER, vertexData, gl.STATIC_DRAW);
 var positionHandle = getAttribLocation(program, 'position');
 
 gl.enableVertexAttribArray(positionHandle);
-gl.vertexAttribPointer(positionHandle,
+gl.vertexAttribPointer(
+  positionHandle,
   2, 				// position is a vec2 (2 values per component)
   gl.FLOAT, // each component is a float
   false, 		// don't normalize values
   2 * 4, 		// two 4 byte float components per vertex (32 bit float is 4 bytes)
   0 				// how many bytes inside the buffer to start from
-  );
+);
 
 //Set uniform handle
-var timeHandle = getUniformLocation(program, 'time');
+var beatPositionHandle = getUniformLocation(program, 'beatPosition');
+var lineYHandle = getUniformLocation(program, 'lineY');
 var widthHandle = getUniformLocation(program, 'width');
 var heightHandle = getUniformLocation(program, 'height');
 
@@ -119,12 +158,60 @@ function draw(){
   time += (thisFrame - lastFrame)/1000;
 	lastFrame = thisFrame;
 
-	//Send uniforms to program
-  gl.uniform1f(timeHandle, time);
   //Draw a triangle strip connecting vertices 0-4
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
   requestAnimationFrame(draw);
+  const beat = player.findBeat(player.timer.position);
+  if(beat != null) {
+    const beatPosition = (player.timer.position - beat.startTime) / (beat.endTime - beat.startTime);
+    console.log(beatPosition);
+    gl.uniform1f(lineYHandle, beat.position * 0.2 - 0.5);
+    gl.uniform1f(beatPositionHandle, beatPosition);
+  } else {
+    gl.uniform1f(lineYHandle, -1.0);
+    gl.uniform1f(beatPositionHandle, -1.0);
+  }
 }
 
 draw();
+
+// const SONG_URL = "https://www.youtube.com/watch?v=KdNHFKTKX2s";
+const SONG_URL = "https://www.youtube.com/watch?v=XSLhsjepelI";
+
+player.addListener({
+  onAppReady: (app) => {
+    if (!app.managed) {
+      player.createFromSongUrl(SONG_URL);
+    }
+  },
+
+  onVideoReady: () => {
+  },
+
+  onPlay: () => {
+    console.log("player.onPlay");
+  },
+
+  onPause: () => {
+    console.log("player.onPause");
+  },
+
+  onSeek: () => {
+    console.log("player.onSeek");
+  },
+
+  onStop: () => {
+    if (!player.app.managed) {
+    }
+    console.log("player.onStop");
+  },
+
+  onTimerReady: () => {
+    let w = player.video.firstChar;
+    // while(w && w.next) {
+    //   w.animate = textParticleGenerator.generate;
+    //   w = w.next;
+    // }
+  }
+});

@@ -6,7 +6,8 @@ vec2 resolution = vec2(width, height);
 
 #define PI 3.1415926538
 
-uniform float time;
+uniform float beatPosition;
+uniform float lineY;
 
 #define POINT_COUNT 4
 
@@ -77,7 +78,7 @@ float sdBezier(vec2 pos, vec2 A, vec2 B, vec2 C){
 
 vec2 getHeartPosition(float t){
     float scale = 2.0;
-    return vec2(scale * (abs(sin(t)) - 0.5), 0.0);
+    return vec2(scale * (abs(sin(t)) - 0.5), lineY);
 }
 
 //https://www.shadertoy.com/view/3s3GDn
@@ -99,13 +100,14 @@ float drawSmooth(vec2 pos, vec2 points[POINT_COUNT]) {
   return max(0.0, dist);
 }
 
-float getSegment(float t, vec2 pos) {
-    t = fract(t);
-    for(int i = 0; i < POINT_COUNT; i++) {
-        points[i] = getHeartPosition(float(i) * 0.1 + t * 0.5 * PI);
-    }
+float getSegment(vec2 pos, float beatPosition) {
+  // k moves from 0.0 to 1.0
 
-    return drawSmooth(pos, points);
+  for(int i = 0; i < POINT_COUNT; i++) {
+      points[i] = getHeartPosition(float(i) * 0.1 + beatPosition * 0.5 * PI);
+  }
+
+  return drawSmooth(pos, points);
 }
 
 void main(){
@@ -116,10 +118,13 @@ void main(){
     //Shift upwards to centre heart
     float scale = 1.0;
 
-    float t = time;
-
     //Get first segment
-    float dist = getSegment(t, pos);
+    if (beatPosition < 0.0) {
+      //Output to screen
+      gl_FragColor = vec4(vec3(0.0), 1.0);
+      return;
+    }
+    float dist = getSegment(pos, beatPosition);
     float glow = getGlow(dist, radius, intensity);
 
     vec3 color = vec3(0.0);
