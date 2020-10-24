@@ -77,9 +77,9 @@ float sdBezier(vec2 pos, vec2 A, vec2 B, vec2 C){
 }
 
 
-vec2 getHeartPosition(float t){
-    float scale = 2.0;
-    return vec2(scale * (abs(sin(t)) - 0.5), 0.5 - 0.2 * float(beatIndex));
+vec2 getLinePosition(float t){
+    float speed = 1.2;
+    return vec2(speed * (abs(sin(t)) - 0.5), 0.5 - 0.2 * float(beatIndex));
 }
 
 //https://www.shadertoy.com/view/3s3GDn
@@ -105,7 +105,7 @@ float getSegment(vec2 pos, float beatPosition) {
   // k moves from 0.0 to 1.0
 
   for(int i = 0; i < POINT_COUNT; i++) {
-      points[i] = getHeartPosition(float(i) * 0.1 + beatPosition * 0.5 * PI);
+      points[i] = getLinePosition(float(i) * 0.1 + beatPosition * 0.5 * PI);
   }
 
   return drawSmooth(pos, points);
