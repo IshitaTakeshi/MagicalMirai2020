@@ -141,7 +141,7 @@ gl.vertexAttribPointer(
 //Set uniform handle
 var beatPositionHandle = getUniformLocation(program, 'beatPosition');
 var beatExistsHandle = getUniformLocation(program, 'beatExists');
-var lineYHandle = getUniformLocation(program, 'lineY');
+var beatIndexHandle = getUniformLocation(program, 'beatIndex');
 var widthHandle = getUniformLocation(program, 'width');
 var heightHandle = getUniformLocation(program, 'height');
 
@@ -163,8 +163,9 @@ function sendBeatPositionToShader(beat) {
 
   gl.uniform1i(beatExistsHandle, 1);
   const beatPosition = calcBeatPosition(player.timer.position, beat.startTime, beat.endTime);
-  console.log(beatPosition);
-  gl.uniform1f(lineYHandle, beat.position * 0.2 - 0.5);
+  // console.log(beatPosition);
+  console.log(beat.position);
+  gl.uniform1i(beatIndexHandle, beat.position);
   gl.uniform1f(beatPositionHandle, beatPosition);
 }
 

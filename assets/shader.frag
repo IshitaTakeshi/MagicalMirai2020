@@ -8,7 +8,7 @@ vec2 resolution = vec2(width, height);
 
 uniform float beatPosition;
 uniform int beatExists;
-uniform float lineY;
+uniform int beatIndex;
 
 #define POINT_COUNT 4
 
@@ -79,7 +79,7 @@ float sdBezier(vec2 pos, vec2 A, vec2 B, vec2 C){
 
 vec2 getHeartPosition(float t){
     float scale = 2.0;
-    return vec2(scale * (abs(sin(t)) - 0.5), lineY);
+    return vec2(scale * (abs(sin(t)) - 0.5), 0.5 - 0.2 * float(beatIndex));
 }
 
 //https://www.shadertoy.com/view/3s3GDn
