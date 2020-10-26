@@ -10,6 +10,8 @@ uniform float beatPosition;
 uniform int beatExists;
 uniform int beatIndex;
 
+float screenAspectRatio = resolution.y / resolution.x;
+
 #define POINT_COUNT 4
 
 float intensity = 1.3;
@@ -112,7 +114,9 @@ float spiral(vec2 pos, float beatPosition) {
 
 vec2 linePosition(float t) {
   float speed = 1.2;
-  return vec2(speed * (abs(sin(t)) - 0.5), 0.5 - 0.2 * float(beatIndex));
+  float x = speed * (abs(sin(t)) - 0.5);
+  float y = 0.5 - 0.2 * float(beatIndex);
+  return vec2(x, y * screenAspectRatio);
 }
 
 float line(vec2 pos, float beatPosition) {
@@ -142,6 +146,7 @@ void main(){
     vec2 uv = gl_FragCoord.xy/resolution.xy;
     vec2 centre = vec2(0.5, 0.5);
     vec2 pos = uv - centre;
+    pos.y *= screenAspectRatio;
     vec3 glowColor = vec3(1.0,0.05,0.3);
 
     if (beatExists == 0) {
