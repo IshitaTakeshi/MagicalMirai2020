@@ -6,7 +6,7 @@ vec2 resolution = vec2(width, height);
 
 #define PI 3.1415926538
 
-uniform float beatPosition;
+uniform float beatProgress;
 uniform int beatExists;
 uniform int beatIndex;
 
@@ -102,11 +102,11 @@ vec2 spiralPosition(float t) {
   return vec2(v * sin(omega), v * cos(omega));
 }
 
-float spiral(vec2 pos, float beatPosition) {
+float spiral(vec2 pos, float beatProgress) {
   vec2 points[POINT_COUNT];
 
   for(int i = 0; i < POINT_COUNT; i++) {
-      points[i] = spiralPosition(beatPosition);
+      points[i] = spiralPosition(beatProgress);
   }
 
   return drawSmooth(pos, points);
@@ -119,11 +119,11 @@ vec2 linePosition(float t) {
   return vec2(x, y * screenAspectRatio);
 }
 
-float line(vec2 pos, float beatPosition) {
+float line(vec2 pos, float beatProgress) {
   vec2 points[POINT_COUNT];
 
   for(int i = 0; i < POINT_COUNT; i++) {
-      points[i] = linePosition(float(i) * 0.1 + beatPosition * 0.5 * PI);
+      points[i] = linePosition(float(i) * 0.1 + beatProgress * 0.5 * PI);
   }
 
   return drawSmooth(pos, points);
@@ -158,11 +158,11 @@ void main(){
     float glow;
     vec3 color = vec3(0.0);
 
-    distance_ = line(pos, beatPosition);
+    distance_ = line(pos, beatProgress);
     glow = glowMagnitude(distance_, radius, intensity);
     color += calcColor(distance_, glow, glowColor);
 
-    distance_ = spiral(pos, beatPosition);
+    distance_ = spiral(pos, beatProgress);
     glow = glowMagnitude(distance_, radius, intensity);
     color += calcColor(distance_, glow, glowColor);
 

@@ -136,7 +136,7 @@ gl.vertexAttribPointer(
 );
 
 //Set uniform handle
-var beatPositionHandle = getUniformLocation(program, 'beatPosition');
+var beatProgressHandle = getUniformLocation(program, 'beatProgress');
 var beatExistsHandle = getUniformLocation(program, 'beatExists');
 var beatIndexHandle = getUniformLocation(program, 'beatIndex');
 var widthHandle = getUniformLocation(program, 'width');
@@ -148,21 +148,21 @@ gl.uniform1f(heightHandle, window.innerHeight);
 var lastFrame = Date.now();
 var thisFrame;
 
-function calcBeatPosition(time, startTime, endTime) {
+function calcBeatProgress(time, startTime, endTime) {
   return (time - startTime) / (endTime - startTime);
 }
 
-function sendBeatPositionToShader(beat) {
+function sendBeatProgressToShader(beat) {
   if (beat == null) {
     gl.uniform1i(beatExistsHandle, 0);
     return;
   }
 
   gl.uniform1i(beatExistsHandle, 1);
-  const beatPosition = calcBeatPosition(player.timer.position, beat.startTime, beat.endTime);
-  // console.log(beatPosition);
+  const beatProgress = calcBeatProgress(player.timer.position, beat.startTime, beat.endTime);
+  // console.log(beatProgress);
   gl.uniform1i(beatIndexHandle, beat.position);
-  gl.uniform1f(beatPositionHandle, beatPosition);
+  gl.uniform1f(beatProgressHandle, beatProgress);
 }
 
 function draw(){
@@ -177,7 +177,7 @@ function draw(){
 
   const position = player.timer.position;
   const beat = player.findBeat(position);
-  sendBeatPositionToShader(beat);
+  sendBeatProgressToShader(beat);
 
   if (!player.timer.isPlaying) {
     return;
