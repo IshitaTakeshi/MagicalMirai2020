@@ -49,9 +49,6 @@ if(!gl){
   console.error("Unable to initialize WebGL.");
 }
 
-//Time
-var time = 0.0;
-
 //************** Shader sources **************
 
 var vertexSource = vertexSourceDict["default"];
@@ -169,11 +166,6 @@ function sendBeatPositionToShader(beat) {
 }
 
 function draw(){
-  //Update time
-	thisFrame = Date.now();
-  time += (thisFrame - lastFrame)/1000;
-	lastFrame = thisFrame;
-
   //Draw a triangle strip connecting vertices 0-4
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
