@@ -131,6 +131,23 @@ float spiral(vec2 pos, float beatProgress) {
   return drawSmooth(pos, points);
 }
 
+// https://codepen.io/al-ro/pen/BaaBage
+vec2 heartPosition(float t) {
+  float scale = -0.01;
+  return scale * vec2(16.0 * sin(t) * sin(t) * sin(t),
+                      -(13.0 * cos(t) - 5.0 * cos(2.0*t) - 2.0 * cos(3.0*t) - cos(4.0*t)));
+}
+
+float heart(vec2 pos, float t) {
+  vec2 points[POINT_COUNT];
+
+  for(int i = 0; i < POINT_COUNT; i++) {
+    points[i] = heartPosition(float(i) * 0.25 + 0.01*t);
+  }
+
+  return drawSmooth(pos, points);
+}
+
 vec2 linePosition(float t) {
   float speed = 1.2;
   float x = speed * (abs(sin(t)) - 0.5);
