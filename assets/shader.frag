@@ -78,8 +78,26 @@ float sdBezier(vec2 pos, vec2 A, vec2 B, vec2 C){
     return res;
 }
 
+// Copyright © 2018 Inigo Quilez
+// The original code is distributed under the MIT license
+// https://www.iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+// signed distance to a 5-star polygon
+float sdStar5(in vec2 p, in float r, in float rf)
+{
+    const vec2 k1 = vec2(0.809016994375, -0.587785252292);
+    const vec2 k2 = vec2(-k1.x,k1.y);
+    p.x = abs(p.x);
+    p -= 2.0*max(dot(k1,p),0.0)*k1;
+    p -= 2.0*max(dot(k2,p),0.0)*k2;
+    p.x = abs(p.x);
+    p.y -= r;
+    vec2 ba = rf*vec2(-k1.y,k1.x) - vec2(0,1);
+    float h = clamp( dot(p,ba)/dot(ba,ba), 0.0, r );
+    return length(p-ba*h) * sign(p.y*ba.x-p.x*ba.y);
+}
+
 //https://www.shadertoy.com/view/3s3GDn
-float glowMagnitude(float dist, float radius, float intensity){
+float glowMagnitude(float dist, float radius, float intensity) {
     return pow(radius/dist, intensity);
 }
 
