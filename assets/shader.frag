@@ -12,9 +12,6 @@ uniform int beatIndex;
 
 #define POINT_COUNT 4
 
-vec2 points[POINT_COUNT];
-const float speed = -0.5;
-const float len = 0.25;
 float intensity = 1.3;
 float radius = 0.008;
 
@@ -104,6 +101,8 @@ float drawSmooth(vec2 pos, vec2 points[POINT_COUNT]) {
 
 float getSegment(vec2 pos, float beatPosition) {
   // k moves from 0.0 to 1.0
+
+  vec2 points[POINT_COUNT];
 
   for(int i = 0; i < POINT_COUNT; i++) {
       points[i] = getLinePosition(float(i) * 0.1 + beatPosition * 0.5 * PI);
