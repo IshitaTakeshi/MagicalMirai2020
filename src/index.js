@@ -33,7 +33,7 @@ console.log("Takeshi Ishita <ishitah.takeshi@gmail.com> (https://ishitatakeshi.n
 const player = new Player({
   app: {
     appAuthor: "TextAlive",
-    appName: "p5.js example",
+    appName: "WebGL example",
   },
   mediaElement: "#media",
 });
@@ -113,7 +113,7 @@ gl.linkProgram(program);
 gl.useProgram(program);
 
 //Set up rectangle covering entire canvas
-var vertexData = new Float32Array([
+const vertexData = new Float32Array([
   -1.0,  1.0, 	// top left
   -1.0, -1.0, 	// bottom left
    1.0,  1.0, 	// top right
@@ -186,6 +186,7 @@ function draw(){
   const position = player.timer.position;
   const beat = player.findBeat(position);
   sendBeatPositionToShader(beat);
+
   if (!player.timer.isPlaying) {
     return;
   }

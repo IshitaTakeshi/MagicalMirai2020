@@ -78,14 +78,13 @@ float sdBezier(vec2 pos, vec2 A, vec2 B, vec2 C){
     return res;
 }
 
-
 vec2 getLinePosition(float t){
     float speed = 1.2;
     return vec2(speed * (abs(sin(t)) - 0.5), 0.5 - 0.2 * float(beatIndex));
 }
 
 //https://www.shadertoy.com/view/3s3GDn
-float getGlow(float dist, float radius, float intensity){
+float glowMagnitude(float dist, float radius, float intensity){
     return pow(radius/dist, intensity);
 }
 
@@ -115,28 +114,21 @@ float getSegment(vec2 pos, float beatPosition) {
 
 void main(){
     vec2 uv = gl_FragCoord.xy/resolution.xy;
-    float widthHeightRatio = resolution.x/resolution.y;
     vec2 centre = vec2(0.5, 0.5);
     vec2 pos = uv - centre;
-    //Shift upwards to centre heart
-    float scale = 1.0;
+    vec3 glow_color = vec3(1.0,0.05,0.3);
 
-    //Get first segment
     if (beatExists == 0) {
-      //Output to screen
       gl_FragColor = vec4(vec3(0.0), 1.0);
       return;
     }
 
     float dist = getSegment(pos, beatPosition);
-    float glow = getGlow(dist, radius, intensity);
+    float glow = glowMagnitude(dist, radius, intensity);
 
-    vec3 color = vec3(0.0);
-
-    //White core
-    color += 10.0 * vec3(smoothstep(0.003, 0.001, dist));
-    //Pink glow
-    color += glow * vec3(1.0,0.05,0.3);
+    // white core
+    vec3 color = 10.0 * vec3(smoothstep(0.003, 0.001, dist));
+    color += glow * glow_color;
 
     //Tone mapping
     color = 1.0 - exp(-color);
