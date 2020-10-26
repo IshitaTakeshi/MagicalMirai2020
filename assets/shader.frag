@@ -75,11 +75,6 @@ float sdBezier(vec2 pos, vec2 A, vec2 B, vec2 C){
     return res;
 }
 
-vec2 getLinePosition(float t){
-    float speed = 1.2;
-    return vec2(speed * (abs(sin(t)) - 0.5), 0.5 - 0.2 * float(beatIndex));
-}
-
 //https://www.shadertoy.com/view/3s3GDn
 float glowMagnitude(float dist, float radius, float intensity){
     return pow(radius/dist, intensity);
@@ -99,41 +94,72 @@ float drawSmooth(vec2 pos, vec2 points[POINT_COUNT]) {
   return max(0.0, dist);
 }
 
-float getSegment(vec2 pos, float beatPosition) {
-  // k moves from 0.0 to 1.0
+vec2 spiralPosition(float t) {
+  float omega = 2.0 * PI * t;
+  float v = 0.3 + 0.003 * t;
+  return vec2(v * sin(omega), v * cos(omega));
+}
 
+float spiral(vec2 pos, float beatPosition) {
   vec2 points[POINT_COUNT];
 
   for(int i = 0; i < POINT_COUNT; i++) {
-      points[i] = getLinePosition(float(i) * 0.1 + beatPosition * 0.5 * PI);
+      points[i] = spiralPosition(beatPosition);
   }
 
   return drawSmooth(pos, points);
+}
+
+vec2 linePosition(float t) {
+  float speed = 1.2;
+  return vec2(speed * (abs(sin(t)) - 0.5), 0.5 - 0.2 * float(beatIndex));
+}
+
+float line(vec2 pos, float beatPosition) {
+  vec2 points[POINT_COUNT];
+
+  for(int i = 0; i < POINT_COUNT; i++) {
+      points[i] = linePosition(float(i) * 0.1 + beatPosition * 0.5 * PI);
+  }
+
+  return drawSmooth(pos, points);
+}
+
+vec3 calcColor(float distance_, float glowMagnitude, vec3 glowColor) {
+  // white core
+  vec3 color = 10.0 * vec3(smoothstep(0.003, 0.001, distance_));
+
+  color += glowMagnitude * glowColor;
+
+  //Tone mapping
+  color = 1.0 - exp(-color);
+
+  //Gamma
+  return pow(color, vec3(0.4545));
 }
 
 void main(){
     vec2 uv = gl_FragCoord.xy/resolution.xy;
     vec2 centre = vec2(0.5, 0.5);
     vec2 pos = uv - centre;
-    vec3 glow_color = vec3(1.0,0.05,0.3);
+    vec3 glowColor = vec3(1.0,0.05,0.3);
 
     if (beatExists == 0) {
       gl_FragColor = vec4(vec3(0.0), 1.0);
       return;
     }
 
-    float dist = getSegment(pos, beatPosition);
-    float glow = glowMagnitude(dist, radius, intensity);
+    float distance_;
+    float glow;
+    vec3 color = vec3(0.0);
 
-    // white core
-    vec3 color = 10.0 * vec3(smoothstep(0.003, 0.001, dist));
-    color += glow * glow_color;
+    distance_ = line(pos, beatPosition);
+    glow = glowMagnitude(distance_, radius, intensity);
+    color += calcColor(distance_, glow, glowColor);
 
-    //Tone mapping
-    color = 1.0 - exp(-color);
-
-    //Gamma
-    color = pow(color, vec3(0.4545));
+    distance_ = spiral(pos, beatPosition);
+    glow = glowMagnitude(distance_, radius, intensity);
+    color += calcColor(distance_, glow, glowColor);
 
     //Output to screen
     gl_FragColor = vec4(color,1.0);
