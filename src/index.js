@@ -139,6 +139,7 @@ gl.vertexAttribPointer(
 var beatProgressHandle = getUniformLocation(program, 'beatProgress');
 var beatExistsHandle = getUniformLocation(program, 'beatExists');
 var beatIndexHandle = getUniformLocation(program, 'beatIndex');
+var songTimeHandle = getUniformLocation(program, 'songTime');
 var widthHandle = getUniformLocation(program, 'width');
 var heightHandle = getUniformLocation(program, 'height');
 
@@ -182,6 +183,8 @@ function draw(){
   if (!player.timer.isPlaying) {
     return;
   }
+
+  gl.uniform1f(songTimeHandle, player.timer.position);
 
   let phrase = player.video.findPhrase(position);
   if (!phrase) {

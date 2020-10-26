@@ -9,6 +9,7 @@ vec2 resolution = vec2(width, height);
 uniform float beatProgress;
 uniform int beatExists;
 uniform int beatIndex;
+uniform float songTime;
 
 float screenAspectRatio = resolution.y / resolution.x;
 
