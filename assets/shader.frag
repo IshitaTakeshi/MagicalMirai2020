@@ -18,8 +18,10 @@ const float len = 0.25;
 float intensity = 1.3;
 float radius = 0.008;
 
-//https://www.shadertoy.com/view/MlKcDD
-//Signed distance to a quadratic bezier
+// https://www.shadertoy.com/view/MlKcDD
+// Copyright © 2018 Inigo Quilez
+// Signed distance to a quadratic bezier
+// The original code is distributed under the MIT license
 float sdBezier(vec2 pos, vec2 A, vec2 B, vec2 C){
     vec2 a = B - A;
     vec2 b = A - 2.0*B + C;
