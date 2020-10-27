@@ -186,18 +186,18 @@ function draw(){
 
   gl.uniform1f(songTimeHandle, player.timer.position);
 
-  let phrase = player.video.findPhrase(position);
-  if (!phrase) {
+  let char = player.video.findWord(position);
+  if (!char) {
     document.querySelector("#lyrics").textContent = "";
     return;
   }
-  document.querySelector("#lyrics").textContent = phrase.text;
+  document.querySelector("#lyrics").textContent = char.text;
 }
 
 draw();
 
 // const SONG_URL = "https://www.youtube.com/watch?v=KdNHFKTKX2s";
-const SONG_URL = "https://www.youtube.com/watch?v=XSLhsjepelI";
+const SONG_URL = "http://www.youtube.com/watch?v=XSLhsjepelI";
 
 const animateText = function (now, unit) {
   if (unit.contains(now)) {
