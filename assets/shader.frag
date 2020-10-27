@@ -1,8 +1,9 @@
+#version 300 es
+
 precision highp float;
 
 uniform float width;
 uniform float height;
-vec2 resolution = vec2(width, height);
 
 #define PI 3.1415926538
 
@@ -11,12 +12,7 @@ uniform int beatExists;
 uniform int beatIndex;
 uniform float songTime;
 
-float screenAspectRatio = resolution.y / resolution.x;
-
 #define POINT_COUNT 4
-
-float intensity = 1.3;
-float radius = 0.008;
 
 // https://www.shadertoy.com/view/MlKcDD
 // Copyright © 2018 Inigo Quilez
@@ -152,7 +148,7 @@ vec2 linePosition(float t) {
   float speed = 1.2;
   float x = speed * (abs(sin(t)) - 0.5);
   float y = 0.5 - 0.2 * float(beatIndex);
-  return vec2(x, y * screenAspectRatio);
+  return vec2(x, y * height / width);
 }
 
 float line(vec2 pos, float beatProgress) {
@@ -178,15 +174,19 @@ vec3 calcColor(float distance_, float glowMagnitude, vec3 glowColor) {
   return pow(color, vec3(0.4545));
 }
 
+out vec4 fragColor;
+
 void main(){
+    vec2 resolution = vec2(width, height);
+
     vec2 uv = gl_FragCoord.xy/resolution.xy;
     vec2 centre = vec2(0.5, 0.5);
     vec2 pos = uv - centre;
-    pos.y *= screenAspectRatio;
+    pos.y *= height / width;
     vec3 glowColor = vec3(1.0,0.05,0.3);
 
     if (beatExists == 0) {
-      gl_FragColor = vec4(vec3(0.0), 1.0);
+      fragColor = vec4(vec3(0.0), 1.0);
       return;
     }
 
@@ -203,5 +203,5 @@ void main(){
     color += calcColor(distance_, glow, glowColor);
 
     //Output to screen
-    gl_FragColor = vec4(color,1.0);
+    fragColor = vec4(color,1.0);
 }

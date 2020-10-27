@@ -44,7 +44,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 // Initialize the GL context
-var gl = canvas.getContext('webgl');
+var gl = canvas.getContext('webgl2');
 if(!gl){
   console.error("Unable to initialize WebGL.");
 }
