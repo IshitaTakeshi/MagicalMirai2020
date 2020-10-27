@@ -181,17 +181,18 @@ float heart(vec2 pos, float t) {
   return drawSmooth(pos, points);
 }
 
-vec2 linePosition(float t, float y) {
-  float speed = 1.2;
-  float x = speed * (abs(sin(t)) - 0.5);
+vec2 linePosition(float x, float y) {
   return vec2(x, y * height / width);
 }
 
 float line(vec2 pos, float t, float y) {
   vec2 points[POINT_COUNT];
 
+  float scale = 1.4;
   for(int i = 0; i < POINT_COUNT; i++) {
-      points[i] = linePosition(float(i) * 0.1 + t * 0.5 * PI, y);
+    float t = float(i) * 0.1 + t * 0.5 * PI;
+    float x = scale * (abs(sin(t)) - 0.5);
+    points[i] = linePosition(x, y);
   }
 
   return drawSmooth(pos, points);
