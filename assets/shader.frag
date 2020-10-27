@@ -111,17 +111,19 @@ float drawSmooth(vec2 pos, vec2 points[POINT_COUNT]) {
   return max(0.0, dist);
 }
 
-vec2 spiralPosition(float t) {
+vec2 spiralPosition(float t, float min_radius, float diffusion_rate, float offset_) {
   float omega = 2.0 * PI * t;
-  float v = 0.3 + 0.003 * t;
-  return vec2(v * sin(omega), v * cos(omega));
+  float v = min_radius + diffusion_rate * t;
+  return vec2(v * sin(omega + offset_), v * cos(omega + offset_));
 }
 
-float spiral(vec2 pos, float beatProgress) {
+float spiral(vec2 pos, float t, float min_radius, float diffusion_rate, float offset_) {
   vec2 points[POINT_COUNT];
 
   for(int i = 0; i < POINT_COUNT; i++) {
-      points[i] = spiralPosition(beatProgress);
+    // float u = float(i) * 0.25 + 0.01*t;
+    float u = float(i)*0.01 + t;
+    points[i] = spiralPosition(u, min_radius, diffusion_rate, offset_);
   }
 
   return drawSmooth(pos, points);
@@ -144,21 +146,24 @@ float heart(vec2 pos, float t) {
   return drawSmooth(pos, points);
 }
 
-vec2 linePosition(float t) {
+vec2 linePosition(float t, float y) {
   float speed = 1.2;
   float x = speed * (abs(sin(t)) - 0.5);
-  float y = 0.5 - 0.2 * float(beatIndex);
   return vec2(x, y * height / width);
 }
 
-float line(vec2 pos, float beatProgress) {
+float line(vec2 pos, float t, float y) {
   vec2 points[POINT_COUNT];
 
   for(int i = 0; i < POINT_COUNT; i++) {
-      points[i] = linePosition(float(i) * 0.1 + beatProgress * 0.5 * PI);
+      points[i] = linePosition(float(i) * 0.1 + t * 0.5 * PI, y);
   }
 
   return drawSmooth(pos, points);
+}
+
+float star(vec2 pos, float size) {
+  return abs(sdStar5(pos, size, 0.43));
 }
 
 vec3 calcColor(float distance_, float glowMagnitude, vec3 glowColor) {
@@ -183,7 +188,9 @@ void main(){
     vec2 centre = vec2(0.5, 0.5);
     vec2 pos = uv - centre;
     pos.y *= height / width;
-    vec3 glowColor = vec3(1.0,0.05,0.3);
+
+    float intensity = 2.0;
+    float radius = 0.008;
 
     if (beatExists == 0) {
       fragColor = vec4(vec3(0.0), 1.0);
@@ -194,13 +201,23 @@ void main(){
     float glow;
     vec3 color = vec3(0.0);
 
-    distance_ = line(pos, beatProgress);
+    const vec3 green = vec3(0.0, 1.00, 0.4);
+    const vec3 red = vec3(1.0, 0.05, 0.3);
+    distance_ = spiral(pos, 0.5 * beatProgress, 0.1, 0.0, 0.0);
     glow = glowMagnitude(distance_, radius, intensity);
-    color += calcColor(distance_, glow, glowColor);
+    color += calcColor(distance_, glow, red);
 
-    distance_ = spiral(pos, beatProgress);
+    distance_ = spiral(pos, 0.5 * beatProgress, 0.1, 0.0, PI);
     glow = glowMagnitude(distance_, radius, intensity);
-    color += calcColor(distance_, glow, glowColor);
+    color += calcColor(distance_, glow, green);
+
+    distance_ = line(pos, beatProgress, -0.3);
+    glow = glowMagnitude(distance_, radius, intensity);
+    color += calcColor(distance_, glow, red);
+
+    distance_ = line(pos, beatProgress, 0.3);
+    glow = glowMagnitude(distance_, radius, intensity);
+    color += calcColor(distance_, glow, green);
 
     //Output to screen
     fragColor = vec4(color,1.0);
