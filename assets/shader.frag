@@ -118,6 +118,15 @@ float sdTriangle(in vec2 p0, in vec2 p1, in vec2 p2, in vec2 p)
 	return -sqrt(d.x)*sign(d.y);
 }
 
+// https://stackoverflow.com/a/17897228
+// The original code is distributed under the WTFPL license
+vec3 hsv2rgb(vec3 hsv)
+{
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(hsv.xxx + K.xyz) * 6.0 - K.www);
+    return hsv.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), hsv.y);
+}
+
 //https://www.shadertoy.com/view/3s3GDn
 float glowMagnitude(float dist, float radius, float intensity) {
     return pow(radius/dist, intensity);
