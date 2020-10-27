@@ -134,8 +134,7 @@ float sdTriangle(in vec2 p0, in vec2 p1, in vec2 p2, in vec2 p)
 
 // https://stackoverflow.com/a/17897228
 // The original code is distributed under the WTFPL license
-vec3 hsv2rgb(vec3 hsv)
-{
+vec3 hsv2rgb(vec3 hsv) {
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
     vec3 p = abs(fract(hsv.xxx + K.xyz) * 6.0 - K.www);
     return hsv.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), hsv.y);
@@ -170,8 +169,7 @@ float spiral(vec2 pos, float t, float min_radius, float diffusion_rate, float of
   vec2 points[POINT_COUNT];
 
   for(int i = 0; i < POINT_COUNT; i++) {
-    // float u = float(i) * 0.25 + 0.01*t;
-    float u = float(i)*0.01 + t;
+    float u = float(i) * 0.01 + t;
     points[i] = spiralPosition(u, min_radius, diffusion_rate, offset_);
   }
 
@@ -213,7 +211,11 @@ float line(vec2 pos, float t, float y) {
 }
 
 float star(vec2 pos, float size) {
-  return abs(sdStar5(pos, size, 0.43));
+  return abs(sdStar5(pos, size, 0.382));
+}
+
+float rectangle(vec2 pos, vec2 a, vec2 b, float theta) {
+  return abs(sdOrientedBox(pos, a, b, theta));
 }
 
 float triangle(vec2 pos, float size, float angle_offset) {
@@ -258,25 +260,48 @@ void main(){
 
     float distance_;
     float glow;
+    vec3 rgb;
     vec3 color = vec3(0.0);
 
-    const vec3 green = vec3(0.0, 1.00, 0.4);
-    const vec3 red = vec3(1.0, 0.05, 0.3);
-    distance_ = spiral(pos, 0.5 * beatProgress, 0.1, 0.0, 0.0);
-    glow = glowMagnitude(distance_, radius, intensity);
-    color += calcColor(distance_, glow, red);
+    distance_ = star(pos, 0.1);
+    glow = 0.1 * glowMagnitude(distance_, radius, intensity);
+    float k = songTime * 0.0002;
+    rgb = hsv2rgb(vec3(k - round(k), 1.0, 1.0));
+    color += calcColor(distance_, glow, rgb);
 
-    distance_ = spiral(pos, 0.5 * beatProgress, 0.1, 0.0, PI);
-    glow = glowMagnitude(distance_, radius, intensity);
-    color += calcColor(distance_, glow, green);
+    int M = 9;
+    float d = 0.2;
+    for(int i = 0; i < M; i++) {
+      float angle = float(i) * 2.0 * PI / float(M);
+      float da = 2.0 * PI / (float(M) * 8.0);
+      float angle1 = angle - da;
+      float angle2 = angle + da;
+      // vec2 p = pos - d * vec2(sin(angle), cos(angle));
+      distance_ = rectangle(pos, d * vec2(cos(angle1), sin(angle1)), d * vec2(cos(angle2), sin(angle2)), 0.1);
+      // triangle(pos - d * vec2(sin(angle), cos(angle)), 0.01, angle);
+      glow = 0.1 * glowMagnitude(distance_, radius, intensity);
+      vec3 rgb = hsv2rgb(vec3(float(i) / float(M), 1.0, 1.0));
+      color += calcColor(distance_, glow, rgb);
+    }
 
-    distance_ = line(pos, beatProgress, -0.3);
-    glow = glowMagnitude(distance_, radius, intensity);
-    color += calcColor(distance_, glow, red);
+    int N = 4;
+    for(int j = 1; j < 5; j++) {
+      for(int i = 0; i < N; i++) {
+        float angle = float(i) * 2.0 * PI / float(N);
+        distance_ = spiral(pos, beatProgress / float(N), 0.1 * float(j), 0.0, angle);
+        glow = 0.1 * glowMagnitude(distance_, radius, intensity);
+        vec3 rgb = hsv2rgb(vec3(float(i) / float(N), 1.0, 1.0));
+        color += calcColor(distance_, glow, rgb);
+      }
+    }
 
-    distance_ = line(pos, beatProgress, 0.3);
-    glow = glowMagnitude(distance_, radius, intensity);
-    color += calcColor(distance_, glow, green);
+    float interval = 0.16;
+    int i = beatIndex - 1;
+    float y = -interval * (float(N)/2.0-0.5) + float(i) * interval;
+    distance_ = line(pos, beatProgress, y);
+    glow = 0.1 * glowMagnitude(distance_, radius, intensity);
+    rgb = hsv2rgb(vec3(float(i) / float(N), 1.0, 1.0));
+    color += calcColor(distance_, glow, rgb);
 
     //Output to screen
     fragColor = vec4(color,1.0);
