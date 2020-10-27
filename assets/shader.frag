@@ -95,6 +95,20 @@ float sdStar5(in vec2 p, in float r, in float rf)
 // Copyright © 2018 Inigo Quilez
 // The original code is distributed under the MIT license
 // https://www.iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+float sdOrientedBox( in vec2 p, in vec2 a, in vec2 b, float th )
+{
+    float l = length(b-a);
+    vec2  d = (b-a)/l;
+    vec2  q = (p-(a+b)*0.5);
+          q = mat2(d.x, -d.y,
+                   d.y,  d.x) * q;
+          q = abs(q)-vec2(l,th)*0.5;
+    return length(max(q,0.0)) + min(max(q.x,q.y),0.0);
+}
+
+// Copyright © 2018 Inigo Quilez
+// The original code is distributed under the MIT license
+// https://www.iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
 // signed distance to a 2D triangle
 float sdTriangle(in vec2 p0, in vec2 p1, in vec2 p2, in vec2 p)
 {
