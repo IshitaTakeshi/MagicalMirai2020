@@ -12,6 +12,9 @@ uniform int beatExists;
 uniform int beatIndex;
 uniform float songTime;
 
+const float intensity = 2.0;
+const float radius = 0.008;
+
 #define POINT_COUNT 4
 
 // https://www.shadertoy.com/view/MlKcDD
@@ -242,6 +245,40 @@ vec3 calcColor(float distance_, float glowMagnitude, vec3 glowColor) {
 
 out vec4 fragColor;
 
+vec3 showRectangles(vec2 pos, vec2 offset_, int n) {
+  float d = 0.2;
+  vec3 color = vec3(0.0);
+  for(int i = 0; i < n; i++) {
+    float angle = float(i) * 2.0 * PI / float(n);
+    float da = 2.0 * PI / (float(n) * 16.0);
+    float angle1 = angle - da;
+    float angle2 = angle + da;
+    // vec2 p = pos - d * vec2(sin(angle), cos(angle));
+    vec2 p1 = vec2(cos(angle1), sin(angle1));
+    vec2 p2 = vec2(cos(angle2), sin(angle2));
+    float distance_ = rectangle(pos + offset_, d * p1, d * p2, 0.1);
+    // triangle(pos - d * vec2(sin(angle), cos(angle)), 0.01, angle);
+    float glow = 0.1 * glowMagnitude(distance_, radius, intensity);
+    vec3 rgb = hsv2rgb(vec3(float(i) / float(n), 1.0, 1.0));
+    color += calcColor(distance_, glow, rgb);
+  }
+  return color;
+}
+
+vec3 roundSpiral(vec2 pos, int n, int m, float time) {
+  vec3 color = vec3(0.0);
+  for(int j = 1; j < 1 + m; j++) {
+    for(int i = 0; i < n; i++) {
+      float angle = float(i) * 2.0 * PI / float(n);
+      float distance_ = spiral(pos, time / float(n), 0.1 * float(j), 0.0, angle);
+      float glow = 0.1 * glowMagnitude(distance_, radius, intensity);
+      vec3 rgb = hsv2rgb(vec3(float(i) / float(n), 1.0, 1.0));
+      color += calcColor(distance_, glow, rgb);
+    }
+  }
+  return color;
+}
+
 void main(){
     vec2 resolution = vec2(width, height);
 
@@ -249,9 +286,6 @@ void main(){
     vec2 centre = vec2(0.5, 0.5);
     vec2 pos = uv - centre;
     pos.y *= height / width;
-
-    float intensity = 2.0;
-    float radius = 0.008;
 
     if (beatExists == 0) {
       fragColor = vec4(vec3(0.0), 1.0);
@@ -269,32 +303,12 @@ void main(){
     rgb = hsv2rgb(vec3(k - round(k), 1.0, 1.0));
     color += calcColor(distance_, glow, rgb);
 
-    int M = 9;
-    float d = 0.2;
-    for(int i = 0; i < M; i++) {
-      float angle = float(i) * 2.0 * PI / float(M);
-      float da = 2.0 * PI / (float(M) * 8.0);
-      float angle1 = angle - da;
-      float angle2 = angle + da;
-      // vec2 p = pos - d * vec2(sin(angle), cos(angle));
-      distance_ = rectangle(pos, d * vec2(cos(angle1), sin(angle1)), d * vec2(cos(angle2), sin(angle2)), 0.1);
-      // triangle(pos - d * vec2(sin(angle), cos(angle)), 0.01, angle);
-      glow = 0.1 * glowMagnitude(distance_, radius, intensity);
-      vec3 rgb = hsv2rgb(vec3(float(i) / float(M), 1.0, 1.0));
-      color += calcColor(distance_, glow, rgb);
-    }
+    color += showRectangles(pos, vec2(0.4, 0.4 * height / width), 16);
+    color += showRectangles(pos, vec2(-0.4, -0.4 * height / width), 16);
+
+    color += roundSpiral(pos, 4, 1, beatProgress);
 
     int N = 4;
-    for(int j = 1; j < 5; j++) {
-      for(int i = 0; i < N; i++) {
-        float angle = float(i) * 2.0 * PI / float(N);
-        distance_ = spiral(pos, beatProgress / float(N), 0.1 * float(j), 0.0, angle);
-        glow = 0.1 * glowMagnitude(distance_, radius, intensity);
-        vec3 rgb = hsv2rgb(vec3(float(i) / float(N), 1.0, 1.0));
-        color += calcColor(distance_, glow, rgb);
-      }
-    }
-
     float interval = 0.16;
     int i = beatIndex - 1;
     float y = -interval * (float(N)/2.0-0.5) + float(i) * interval;
