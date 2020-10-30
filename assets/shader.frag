@@ -12,7 +12,7 @@ uniform int beatExists;
 uniform int beatIndex;
 uniform float songTime;
 
-const float intensity = 2.0;
+const float intensity = 5.0;
 const float radius = 0.008;
 
 #define POINT_COUNT 4
@@ -208,7 +208,7 @@ float heart(vec2 pos, float t) {
   vec2 points[POINT_COUNT];
 
   for(int i = 0; i < POINT_COUNT; i++) {
-    points[i] = heartPosition(float(i) * 0.25 + 0.01*t);
+    points[i] = heartPosition(float(i) * 0.2 + 2.0 * PI * t);
   }
 
   return drawSmooth(pos, points);
@@ -232,7 +232,7 @@ float line(vec2 pos, float t, float y) {
 }
 
 float star(vec2 pos, float size) {
-  return abs(sdStar5(pos, size, 0.382));
+  return abs(sdStar(pos, size, 5, 3.0)); // 0.382));
 }
 
 float rectangle(vec2 pos, vec2 a, vec2 b, float theta) {
@@ -276,7 +276,7 @@ vec3 showRectangles(vec2 pos, vec2 offset_, int n) {
     vec2 p2 = vec2(cos(angle2), sin(angle2));
     float distance_ = rectangle(pos + offset_, d * p1, d * p2, 0.1);
     // triangle(pos - d * vec2(sin(angle), cos(angle)), 0.01, angle);
-    float glow = 0.1 * glowMagnitude(distance_, radius, intensity);
+    float glow = 0.05 * glowMagnitude(distance_, radius, intensity);
     vec3 rgb = hsv2rgb(vec3(float(i) / float(n), 1.0, 1.0));
     color += calcColor(distance_, glow, rgb);
   }
@@ -306,7 +306,7 @@ vec3 roundSpiral(vec2 pos, int n, int m, float time) {
     for(int i = 0; i < n; i++) {
       float angle = float(i) * 2.0 * PI / float(n);
       float distance_ = spiral(pos, time / float(n), 0.1 * float(j), 0.0, angle);
-      float glow = 0.1 * glowMagnitude(distance_, radius, intensity);
+      float glow = 0.04 * glowMagnitude(distance_, radius, intensity);
       vec3 rgb = hsv2rgb(vec3(float(i) / float(n), 1.0, 1.0));
       color += calcColor(distance_, glow, rgb);
     }
@@ -332,16 +332,20 @@ void main(){
     vec3 rgb;
     vec3 color = vec3(0.0);
 
+    // color = roundHeart(pos);
+
+    /*
     distance_ = star(pos, 0.1);
-    glow = 0.1 * glowMagnitude(distance_, radius, intensity);
+    glow = 0.02 * glowMagnitude(distance_, radius, intensity);
     float k = songTime * 0.0002;
     rgb = hsv2rgb(vec3(k - round(k), 1.0, 1.0));
     color += calcColor(distance_, glow, rgb);
+    */
 
     color += showRectangles(pos, vec2(0.4, 0.4 * height / width), 16);
     color += showRectangles(pos, vec2(-0.4, -0.4 * height / width), 16);
 
-    color += roundSpiral(pos, 4, 1, beatProgress);
+    // color += roundSpiral(pos, 5, 1, beatProgress);
 
     int N = 4;
     float interval = 0.16;
