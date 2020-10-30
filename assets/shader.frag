@@ -283,6 +283,23 @@ vec3 showRectangles(vec2 pos, vec2 offset_, int n) {
   return color;
 }
 
+vec3 roundHeart(vec2 pos) {
+  vec3 color = vec3(0.0);
+  float distance_;
+  float glow;
+  vec3 rgb;
+
+  int n = 3;
+  for(int i = 0; i < n; i++) {
+    distance_ = heart(pos, 0.0008 * songTime + float(i) / float(n));
+    glow = glowMagnitude(distance_, radius, intensity);
+    rgb = hsv2rgb(vec3(float(i) / float(n), 1.0, 1.0));
+    color += calcColor(distance_, glow, rgb);
+  }
+
+  return color;
+}
+
 vec3 roundSpiral(vec2 pos, int n, int m, float time) {
   vec3 color = vec3(0.0);
   for(int j = 1; j < 1 + m; j++) {
