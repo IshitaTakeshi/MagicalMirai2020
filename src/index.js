@@ -166,6 +166,10 @@ function sendBeatProgressToShader(beat) {
   gl.uniform1f(beatProgressHandle, beatProgress);
 }
 
+function sendSongTimeToShader(songTime) {
+  gl.uniform1f(songTimeHandle, songTime);
+}
+
 function showLyricsAt(text, verticalPosition, horizontalPosition) {
   document.querySelector("#lyrics").style.textAlign = horizontalPosition;
   document.querySelector("#lyrics").style.verticalAlign = verticalPosition;
@@ -208,7 +212,7 @@ function draw(){
     return;
   }
 
-  gl.uniform1f(songTimeHandle, player.timer.position);
+  sendSongTimeToShader(position);
 
   let c = player.video.findPhrase(position);
   showLyrics(c);
