@@ -29,10 +29,17 @@ body {
   justify-content: center;
 }
 
-#lyrics {
-  padding: 0 0.5em;
-  font-weight: bold;
-  text-align: center;
-  font-size: 5.0vw;
+#textbox {
+  width: 90%;
+  height: 30%;
+  display: table;
 }
 
+#lyrics {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+  margin: auto;
+  font-weight: bold;
+  font-size: 5.3vw;
+}

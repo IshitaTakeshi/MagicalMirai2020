@@ -166,6 +166,30 @@ function sendBeatProgressToShader(beat) {
   gl.uniform1f(beatProgressHandle, beatProgress);
 }
 
+function showLyricsAt(text, verticalPosition, horizontalPosition) {
+  document.querySelector("#lyrics").style.textAlign = horizontalPosition;
+  document.querySelector("#lyrics").style.verticalAlign = verticalPosition;
+  document.querySelector("#lyrics").textContent = text;
+}
+
+// showLyrics("グリーンライツ", "top", "right");
+
+console.log("choruses = ", player.getChoruses());
+
+function showLyrics(c) {
+  if (!c) {
+    showLyricsAt("", "middle", "center");
+    return;
+  }
+
+  if (c.charCount >= 10) {
+    showLyricsAt(c.text, "middle", "center");
+    return;
+  }
+
+  showLyricsAt(c.text, "middle", "center");
+}
+
 function draw(){
   //Draw a triangle strip connecting vertices 0-4
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -186,12 +210,8 @@ function draw(){
 
   gl.uniform1f(songTimeHandle, player.timer.position);
 
-  let char = player.video.findWord(position);
-  if (!char) {
-    document.querySelector("#lyrics").textContent = "";
-    return;
-  }
-  document.querySelector("#lyrics").textContent = char.text;
+  let c = player.video.findPhrase(position);
+  showLyrics(c);
 }
 
 draw();
