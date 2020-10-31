@@ -20,11 +20,11 @@ const float radius = 0.008;
 #define N_COLORS 5
 #define POINT_COUNT 4
 
-const vec3 color_meiko = vec3(255, 0, 0);
-const vec3 color_rinlen = vec3(255, 255, 0);
-const vec3 color_miku = vec3(0, 255, 255);
-const vec3 color_kaito = vec3(0, 0, 255);
-const vec3 color_luka = vec3(255, 0, 255);
+const vec3 color_meiko = vec3(1, 0, 0);
+const vec3 color_rinlen = vec3(1, 1, 0);
+const vec3 color_miku = vec3(0, 1, 1);
+const vec3 color_kaito = vec3(0, 0, 1);
+const vec3 color_luka = vec3(1, 0, 1);
 
 vec3[N_COLORS] getCryptonColors() {
     vec3 crypton_colors[N_COLORS];
