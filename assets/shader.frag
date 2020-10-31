@@ -11,6 +11,8 @@ uniform float beatProgress;
 uniform int beatExists;
 uniform int beatIndex;
 uniform float songTime;
+uniform float chorusIndex;
+uniform float chorusExists;
 
 const float intensity = 5.0;
 const float radius = 0.008;

@@ -142,6 +142,8 @@ var beatIndexHandle = getUniformLocation(program, 'beatIndex');
 var songTimeHandle = getUniformLocation(program, 'songTime');
 var widthHandle = getUniformLocation(program, 'width');
 var heightHandle = getUniformLocation(program, 'height');
+var chorusExistsHandle = getUniformLocation(program, 'chorusExists');
+var chorusIndexHandle = getUniformLocation(program, 'chorusIndex');
 
 gl.uniform1f(widthHandle, window.innerWidth);
 gl.uniform1f(heightHandle, window.innerHeight);
@@ -164,6 +166,16 @@ function sendBeatProgressToShader(beat) {
   // console.log(beatProgress);
   gl.uniform1i(beatIndexHandle, beat.position);
   gl.uniform1f(beatProgressHandle, beatProgress);
+}
+
+function sendChorusToShader(chorus) {
+  if (chorus == null) {
+    gl.uniform1i(chorusExistsHandle, 0);
+    return;
+  }
+
+  gl.uniform1i(chorusIndexHandle, chorus.index);
+  gl.uniform1i(chorusExistsHandle, 1);
 }
 
 function sendSongTimeToShader(songTime) {
@@ -214,8 +226,11 @@ function draw(){
 
   sendSongTimeToShader(position);
 
-  let c = player.video.findPhrase(position);
-  showLyrics(c);
+  let chorus = player.findChorus(position);
+  sendChorusToShader(chorus);
+
+  let p = player.video.findPhrase(position);
+  showLyrics(p);
 }
 
 draw();
