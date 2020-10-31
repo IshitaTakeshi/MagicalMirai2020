@@ -44,6 +44,18 @@ vec3 hsv2rgb(vec3 hsv) {
     return hsv.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), hsv.y);
 }
 
+// https://www.shadertoy.com/view/3tdSDj
+// Copyright © 2018 Inigo Quilez
+// Signed distance to a quadratic bezier
+// The original code is distributed under the MIT license
+float udSegment( in vec2 p, in vec2 a, in vec2 b )
+{
+    vec2 ba = b-a;
+    vec2 pa = p-a;
+    float h =clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+    return length(pa-h*ba);
+}
+
 // https://www.shadertoy.com/view/MlKcDD
 // Copyright © 2018 Inigo Quilez
 // Signed distance to a quadratic bezier
@@ -210,7 +222,7 @@ float spiral(vec2 pos, float theta) {
 
 // https://codepen.io/al-ro/pen/BaaBage
 vec2 heartPosition(float t) {
-  float scale = -0.01;
+  float scale = -0.015;
   return scale * vec2(16.0 * sin(t) * sin(t) * sin(t),
                       -(13.0 * cos(t) - 5.0 * cos(2.0*t) - 2.0 * cos(3.0*t) - cos(4.0*t)));
 }
@@ -287,8 +299,9 @@ vec3 showRectangles(vec2 pos, vec2 offset_, int n) {
     vec2 p2 = vec2(cos(angle2), sin(angle2));
     float distance_ = rectangle(pos + offset_, d * p1, d * p2, 0.1);
     // triangle(pos - d * vec2(sin(angle), cos(angle)), 0.01, angle);
-    float glow = 0.05 * glowMagnitude(distance_, radius, intensity);
-    vec3 rgb = hsv2rgb(vec3(float(i) / float(n), 1.0, 1.0));
+    float glow = 0.05 * glowMagnitude(distance_, 0.001, intensity);
+    float k = songTime * 0.00002;
+    vec3 rgb = hsv2rgb(vec3(k - round(k), 1.0, 1.0));
     color += calcColor(distance_, glow, rgb);
   }
   return color;
@@ -301,20 +314,18 @@ vec3 showStar(vec2 pos, float time, float size) {
   return calcColor(distance_, glow, rgb);
 }
 
-vec3 showRotatedRectangle(vec2 pos, float size, float theta) {
+vec3 showRotatedRectangle(vec2 pos, float size, float theta, vec3 rgb) {
   float da = PI / 2.0;
   float angle1 = theta - da;
   float angle2 = theta + da;
   vec2 p1 = vec2(cos(angle1), sin(angle1));
   vec2 p2 = vec2(cos(angle2), sin(angle2));
   float distance_ = rectangle(pos, size * p1, size * p2, 2.0 * size);
-  // triangle(pos - d * vec2(sin(angle), cos(angle)), 0.01, angle);
-  float glow = glowMagnitude(distance_, radius, 2.0);
-  vec3 rgb = hsv2rgb(vec3(0.5, 1.0, 1.0));
+  float glow = 2.0 * glowMagnitude(distance_, radius, 2.0);
   return calcColor(distance_, glow, rgb);
 }
 
-vec3 showBeams(vec2 pos, int beatIndex, float beatProgress) {
+vec3 showHorizontalBeams(vec2 pos, int beatIndex, float beatProgress) {
   int i = min(3, beatIndex);  // max beat index = 1
   float ys[4] = float[](-0.3, -0.1, 0.1, 0.3);
   vec3 colors[4] = vec3[](color_rinlen, color_rinlen, color_miku, color_luka);
@@ -324,13 +335,15 @@ vec3 showBeams(vec2 pos, int beatIndex, float beatProgress) {
 }
 
 vec3 showRectangleTunnel(vec2 pos, float time) {
+  vec3 crypton_colors[N_COLORS] = getCryptonColors();
+
   vec3 color = vec3(0.0);
 
-  int n_layers = 30;
+  int n_layers = N_COLORS * 4;
   for (int i = 0; i < n_layers; i++) {
     float g = fract(time + float(i) / float(n_layers));
     vec2 p = (pos - vec2(0.5 * (1.0-g), 0.0)) * mix(100.0, 0.0, g);
-    color += showRotatedRectangle(p, g, 0.0);
+    color += showRotatedRectangle(p, g, 0.0, crypton_colors[i % N_COLORS]);
   }
   return color;
 }
@@ -372,6 +385,48 @@ vec3 showSpiral(vec2 pos, float size, float time, vec3 colors[N_COLORS]) {
   return color;
 }
 
+float logistic(float t, float alpha, float beta) {
+  return 1.0 / (1.0 + exp(-alpha * (t - beta)));
+}
+
+float rotatingBeam(vec2 pos, float r1, float r2,
+                   float omega, float beam_time) {
+  float t1 = omega;
+  float t2 = t1;
+  vec2 p1 = r1 * vec2(cos(t1), sin(t1));
+  vec2 p2 = r2 * vec2(cos(t2), sin(t2));
+
+  float k = fract(beam_time);
+  float a1 = logistic(k, 10.0, 0.70);
+  float a2 = logistic(k, 10.0, 0.76);
+  vec2 s1 = p2 + a1 * (p1 - p2);
+  vec2 s2 = p2 + a2 * (p1 - p2);
+
+  return udSegment(pos, s1, s2);
+}
+
+vec3 showRotatingBeams(vec2 pos, float r1, float r2, float t) {
+  vec3 crypton_colors[N_COLORS] = getCryptonColors();
+
+  vec3 color = vec3(0.0);
+  int n_offsets = 1;
+  for (int j = 0; j < n_offsets; j++) {
+    float omega_offset = 2.0 * PI * float(j) / float(n_offsets) + 0.4 * t;
+    float beam_offset = 0.0 * float(j);
+
+    int n = N_COLORS;
+    for (int i = 0; i < n; i++) {
+      int k = i % N_COLORS;
+      float omega = 2.0 * PI * (0.2 * t + float(i) / float(n)) + omega_offset;
+      float beam_time = 1.0 * t + float(i) / float(n) + beam_offset;
+      float distance_ = rotatingBeam(pos, r1, r2, omega, beam_time);
+      float glow = glowMagnitude(distance_, radius, intensity);
+      color += calcColor(distance_, glow, crypton_colors[k]);
+    }
+  }
+  return color;
+}
+
 void main() {
     vec2 resolution = vec2(width, height);
 
@@ -388,7 +443,7 @@ void main() {
     vec3 crypton_colors[N_COLORS] = getCryptonColors();
     vec3 color = vec3(0.0);
 
-    float time = 0.0008 * songTime;
+    // float time = 0.0008 * songTime;
     // color += showHeart(pos, time, color_meiko, color_kaito);
 
     // color += showStar(pos, 0.0002 * songTime, 0.15);
@@ -396,12 +451,12 @@ void main() {
     // color += showRectangles(pos * mix(1.0, 0.0, 0.5), vec2(0.0, 0.0 * height / width), 16);
     // color += showRectangles(pos, vec2(-0.4, -0.4 * height / width), 16);
 
-    float k = 0.0002 * songTime;
-    color += showSpiral(pos, 0.1, k, crypton_colors);
+    // float k = 0.0002 * songTime;
+    // color += showSpiral(pos, 0.1, k, crypton_colors);
 
-    // color += showBeams(pos, beatIndex, beatProgress);
-    // color += showRectangleTunnel(pos, songTime * 0.00007);
-
+    // color += showRotatingBeams(pos, 0.1, 1.0, k);
+    // color += showHorizontalBeams(pos, beatIndex, beatProgress);
+    color += showRectangleTunnel(pos, songTime * 0.0001);
     //Output to screen
     fragColor = vec4(color,1.0);
 }
