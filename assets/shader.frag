@@ -15,7 +15,32 @@ uniform float songTime;
 const float intensity = 5.0;
 const float radius = 0.008;
 
+#define N_COLORS 5
 #define POINT_COUNT 4
+
+const vec3 color_meiko = vec3(255, 0, 0);
+const vec3 color_rinlen = vec3(255, 255, 0);
+const vec3 color_miku = vec3(0, 255, 255);
+const vec3 color_kaito = vec3(0, 0, 255);
+const vec3 color_luka = vec3(255, 0, 255);
+
+vec3[N_COLORS] getCryptonColors() {
+    vec3 crypton_colors[N_COLORS];
+    crypton_colors[0] = color_meiko;
+    crypton_colors[1] = color_rinlen;
+    crypton_colors[2] = color_miku;
+    crypton_colors[3] = color_kaito;
+    crypton_colors[4] = color_luka;
+    return crypton_colors;
+}
+
+// https://stackoverflow.com/a/17897228
+// The original code is distributed under the WTFPL license
+vec3 hsv2rgb(vec3 hsv) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(hsv.xxx + K.xyz) * 6.0 - K.www);
+    return hsv.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), hsv.y);
+}
 
 // https://www.shadertoy.com/view/MlKcDD
 // Copyright © 2018 Inigo Quilez
@@ -151,14 +176,6 @@ float sdTriangle(in vec2 p0, in vec2 p1, in vec2 p2, in vec2 p)
                        vec2( dot( pq2, pq2 ), s*(v2.x*e2.y-v2.y*e2.x) ));
 
 	return -sqrt(d.x)*sign(d.y);
-}
-
-// https://stackoverflow.com/a/17897228
-// The original code is distributed under the WTFPL license
-vec3 hsv2rgb(vec3 hsv) {
-    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-    vec3 p = abs(fract(hsv.xxx + K.xyz) * 6.0 - K.www);
-    return hsv.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), hsv.y);
 }
 
 //https://www.shadertoy.com/view/3s3GDn
