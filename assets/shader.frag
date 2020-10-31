@@ -307,10 +307,9 @@ vec3 showRectangles(vec2 pos, vec2 offset_, int n) {
   return color;
 }
 
-vec3 showStar(vec2 pos, float time, float size) {
+vec3 showStar(vec2 pos, float size, vec3 rgb) {
   float distance_ = star(pos, size);
-  float glow = 0.02 * glowMagnitude(distance_, radius, 8.0);
-  vec3 rgb = color_rinlen; // vec3(1.0, 1.0, 1.0); // hsv2rgb(vec3(time - round(time), 1.0, 1.0));
+  float glow = glowMagnitude(distance_, radius, 8.0);
   return calcColor(distance_, glow, rgb);
 }
 
@@ -332,6 +331,24 @@ vec3 showHorizontalBeams(vec2 pos, int beatIndex, float beatProgress) {
   float distance_ = line(pos, beatProgress, ys[i]);
   float glow = 0.1 * glowMagnitude(distance_, radius, intensity);
   return calcColor(distance_, glow, colors[i]);
+}
+
+vec3 showStarTunnel(vec2 pos, float time) {
+  vec3 crypton_colors[N_COLORS] = getCryptonColors();
+
+  vec3 color = vec3(0.0);
+
+  int n_layers = N_COLORS * 4;
+  for (int i = 0; i < n_layers; i++) {
+    float g = fract(time + float(i) / float(n_layers));
+    vec2 p = (pos + vec2(0.5 * (1.0-g), 0.0)) * mix(100.0, 0.0, g);
+    float angle = -2.0 * PI * float(i) / (float(n_layers) * 5.0);
+    mat2 rotation = mat2(cos(angle), -sin(angle),
+		                     sin(angle),  cos(angle));
+    p = rotation * p;
+    color += showStar(p, g, crypton_colors[i % N_COLORS]);
+  }
+  return color;
 }
 
 vec3 showRectangleTunnel(vec2 pos, float time) {
@@ -456,7 +473,8 @@ void main() {
 
     // color += showRotatingBeams(pos, 0.1, 1.0, k);
     // color += showHorizontalBeams(pos, beatIndex, beatProgress);
-    color += showRectangleTunnel(pos, songTime * 0.0001);
+    // color += showRectangleTunnel(pos, songTime * 0.0001);
+    color += showStarTunnel(pos, songTime * 0.0001);
     //Output to screen
     fragColor = vec4(color,1.0);
 }
