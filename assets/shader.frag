@@ -199,21 +199,13 @@ float drawSmooth(vec2 pos, vec2 points[POINT_COUNT]) {
   return max(0.0, dist);
 }
 
-vec2 spiralPosition(float t, float min_radius, float diffusion_rate, float offset_) {
-  float omega = 2.0 * PI * t;
-  float v = min_radius + diffusion_rate * t;
-  return vec2(v * sin(omega + offset_), v * cos(omega + offset_));
+vec2 spiralPosition(float r, float theta) {
+  float omega = 2.0 * PI * theta;
+  return vec2(r * sin(omega), r * cos(omega));
 }
 
-float spiral(vec2 pos, float t, float min_radius, float diffusion_rate, float offset_) {
-  vec2 points[POINT_COUNT];
-
-  for(int i = 0; i < POINT_COUNT; i++) {
-    float u = float(i) * 0.01 + t;
-    points[i] = spiralPosition(u, min_radius, diffusion_rate, offset_);
-  }
-
-  return drawSmooth(pos, points);
+float spiral(vec2 pos, float theta) {
+  return length(pos - spiralPosition(0.1, theta));
 }
 
 // https://codepen.io/al-ro/pen/BaaBage
@@ -302,38 +294,85 @@ vec3 showRectangles(vec2 pos, vec2 offset_, int n) {
   return color;
 }
 
-vec3 roundHeart(vec2 pos) {
+vec3 showStar(vec2 pos, float time, float size) {
+  float distance_ = star(pos, size);
+  float glow = 0.02 * glowMagnitude(distance_, radius, 8.0);
+  vec3 rgb = color_rinlen; // vec3(1.0, 1.0, 1.0); // hsv2rgb(vec3(time - round(time), 1.0, 1.0));
+  return calcColor(distance_, glow, rgb);
+}
+
+vec3 showRotatedRectangle(vec2 pos, float size, float theta) {
+  float da = PI / 2.0;
+  float angle1 = theta - da;
+  float angle2 = theta + da;
+  vec2 p1 = vec2(cos(angle1), sin(angle1));
+  vec2 p2 = vec2(cos(angle2), sin(angle2));
+  float distance_ = rectangle(pos, size * p1, size * p2, 2.0 * size);
+  // triangle(pos - d * vec2(sin(angle), cos(angle)), 0.01, angle);
+  float glow = glowMagnitude(distance_, radius, 2.0);
+  vec3 rgb = hsv2rgb(vec3(0.5, 1.0, 1.0));
+  return calcColor(distance_, glow, rgb);
+}
+
+vec3 showBeams(vec2 pos, int beatIndex, float beatProgress) {
+  int i = min(3, beatIndex);  // max beat index = 1
+  float ys[4] = float[](-0.3, -0.1, 0.1, 0.3);
+  vec3 colors[4] = vec3[](color_rinlen, color_rinlen, color_miku, color_luka);
+  float distance_ = line(pos, beatProgress, ys[i]);
+  float glow = 0.1 * glowMagnitude(distance_, radius, intensity);
+  return calcColor(distance_, glow, colors[i]);
+}
+
+vec3 showRectangleTunnel(vec2 pos, float time) {
+  vec3 color = vec3(0.0);
+
+  int n_layers = 30;
+  for (int i = 0; i < n_layers; i++) {
+    float g = fract(time + float(i) / float(n_layers));
+    vec2 p = (pos - vec2(0.5 * (1.0-g), 0.0)) * mix(100.0, 0.0, g);
+    color += showRotatedRectangle(p, g, 0.0);
+  }
+  return color;
+}
+
+vec3 showHeart(vec2 pos, float time, vec3 color1, vec3 color2) {
   vec3 color = vec3(0.0);
   float distance_;
   float glow;
-  vec3 rgb;
 
-  int n = 3;
-  for(int i = 0; i < n; i++) {
-    distance_ = heart(pos, 0.0008 * songTime + float(i) / float(n));
-    glow = glowMagnitude(distance_, radius, intensity);
-    rgb = hsv2rgb(vec3(float(i) / float(n), 1.0, 1.0));
-    color += calcColor(distance_, glow, rgb);
-  }
+  distance_ = heart(pos, time + 0.0);
+  glow = glowMagnitude(distance_, radius, intensity);
+  color += calcColor(distance_, glow, color1);
+
+  distance_ = heart(pos, time + 0.5);
+  glow = glowMagnitude(distance_, radius, intensity);
+  color += calcColor(distance_, glow, color2);
 
   return color;
 }
 
-vec3 roundSpiral(vec2 pos, int n, int m, float time) {
+vec3 showSpiral(vec2 pos, float size, float time, vec3 colors[N_COLORS]) {
   vec3 color = vec3(0.0);
-  for(int j = 1; j < 1 + m; j++) {
-    for(int i = 0; i < n; i++) {
-      float angle = float(i) * 2.0 * PI / float(n);
-      float distance_ = spiral(pos, time / float(n), 0.1 * float(j), 0.0, angle);
-      float glow = 0.04 * glowMagnitude(distance_, radius, intensity);
-      vec3 rgb = hsv2rgb(vec3(float(i) / float(n), 1.0, 1.0));
-      color += calcColor(distance_, glow, rgb);
+
+  float min_radius = 0.2; // fract(time);
+
+  for (int c = 0; c < N_COLORS; c++) {
+    vec2 positions[POINT_COUNT];
+    float color_offset = float(c) / float(N_COLORS);
+    for (int i = 0; i < POINT_COUNT; i++) {
+      float r = min_radius + float(i) * 0.1;
+      float theta = -time + color_offset + float(i) * 0.1;
+      positions[i] = spiralPosition(r, theta);
+      // float distance_ = spiral(pos, t);
     }
+    float distance_ = drawSmooth(pos, positions);
+    float glow = 0.004 * glowMagnitude(distance_, radius, 8.0);
+    color += calcColor(distance_, glow, colors[c]);
   }
   return color;
 }
 
-void main(){
+void main() {
     vec2 resolution = vec2(width, height);
 
     vec2 uv = gl_FragCoord.xy/resolution.xy;
@@ -346,34 +385,22 @@ void main(){
       return;
     }
 
-    float distance_;
-    float glow;
-    vec3 rgb;
+    vec3 crypton_colors[N_COLORS] = getCryptonColors();
     vec3 color = vec3(0.0);
 
-    // color = roundHeart(pos);
+    float time = 0.0008 * songTime;
+    // color += showHeart(pos, time, color_meiko, color_kaito);
 
-    /*
-    distance_ = star(pos, 0.1);
-    glow = 0.02 * glowMagnitude(distance_, radius, intensity);
-    float k = songTime * 0.0002;
-    rgb = hsv2rgb(vec3(k - round(k), 1.0, 1.0));
-    color += calcColor(distance_, glow, rgb);
-    */
+    // color += showStar(pos, 0.0002 * songTime, 0.15);
 
-    color += showRectangles(pos, vec2(0.4, 0.4 * height / width), 16);
-    color += showRectangles(pos, vec2(-0.4, -0.4 * height / width), 16);
+    // color += showRectangles(pos * mix(1.0, 0.0, 0.5), vec2(0.0, 0.0 * height / width), 16);
+    // color += showRectangles(pos, vec2(-0.4, -0.4 * height / width), 16);
 
-    // color += roundSpiral(pos, 5, 1, beatProgress);
+    float k = 0.0002 * songTime;
+    color += showSpiral(pos, 0.1, k, crypton_colors);
 
-    int N = 4;
-    float interval = 0.16;
-    int i = beatIndex - 1;
-    float y = -interval * (float(N)/2.0-0.5) + float(i) * interval;
-    distance_ = line(pos, beatProgress, y);
-    glow = 0.1 * glowMagnitude(distance_, radius, intensity);
-    rgb = hsv2rgb(vec3(float(i) / float(N), 1.0, 1.0));
-    color += calcColor(distance_, glow, rgb);
+    // color += showBeams(pos, beatIndex, beatProgress);
+    // color += showRectangleTunnel(pos, songTime * 0.00007);
 
     //Output to screen
     fragColor = vec4(color,1.0);
