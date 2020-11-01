@@ -38,6 +38,8 @@ const player = new Player({
   mediaElement: "#media",
 });
 
+const IS_MOBILE = window.innerWidth < 500;
+
 var canvas = document.getElementById("canvas");
 
 canvas.width = window.innerWidth;
@@ -183,7 +185,12 @@ function sendSongTimeToShader(songTime) {
 }
 
 function setLyricsSize(size) {
-  document.querySelector("#lyrics").style.fontSize = size;
+  let element = document.querySelector("#lyrics");
+  if (IS_MOBILE) {
+    element.style.fontSize = "8.8vw";
+  } else {
+    element.style.fontSize = "4.8vw";
+  }
 }
 
 function showLyricsAt(text) {
@@ -192,12 +199,6 @@ function showLyricsAt(text) {
   document.querySelector("#lyrics").textContent = text;
 }
 
-const IS_MOBILE = window.innerWidth < 500;
-if (IS_MOBILE) {
-  setLyricsSize("8.8vw");
-} else {
-  setLyricsSize("4.8vw");
-}
 
 function getLyrics(songTime) {
   if (IS_MOBILE) {
@@ -241,6 +242,7 @@ function draw() {
   showLyrics(getLyrics(position));
 }
 
+setLyricsSize();
 draw();
 
 // const SONG_URL = "https://www.youtube.com/watch?v=KdNHFKTKX2s";
