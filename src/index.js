@@ -155,16 +155,16 @@ function calcBeatProgress(time, startTime, endTime) {
   return (time - startTime) / (endTime - startTime);
 }
 
-function sendBeatProgressToShader(beat) {
+function sendBeatProgressToShader(beat, position) {
   if (beat == null) {
     gl.uniform1i(beatExistsHandle, 0);
     return;
   }
 
   gl.uniform1i(beatExistsHandle, 1);
-  const beatProgress = calcBeatProgress(player.timer.position, beat.startTime, beat.endTime);
-  // console.log(beatProgress);
-  gl.uniform1i(beatIndexHandle, beat.position);
+  const beatProgress = calcBeatProgress(position, beat.startTime, beat.endTime);
+  // subtract 1 because beat.position starts from 1
+  gl.uniform1i(beatIndexHandle, beat.position - 1);
   gl.uniform1f(beatProgressHandle, beatProgress);
 }
 
@@ -218,7 +218,7 @@ function draw(){
 
   const position = player.timer.position;
   const beat = player.findBeat(position);
-  sendBeatProgressToShader(beat);
+  sendBeatProgressToShader(beat, position);
 
   if (!player.timer.isPlaying) {
     return;
