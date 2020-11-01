@@ -182,31 +182,40 @@ function sendSongTimeToShader(songTime) {
   gl.uniform1f(songTimeHandle, songTime);
 }
 
-function showLyricsAt(text, verticalPosition, horizontalPosition) {
-  document.querySelector("#lyrics").style.textAlign = horizontalPosition;
-  document.querySelector("#lyrics").style.verticalAlign = verticalPosition;
+function setLyricsSize(size) {
+  document.querySelector("#lyrics").style.fontSize = size;
+}
+
+function showLyricsAt(text) {
+  /* document.querySelector("#lyrics").style.textAlign = horizontalPosition; */
+  /* document.querySelector("#lyrics").style.verticalAlign = verticalPosition; */
   document.querySelector("#lyrics").textContent = text;
 }
 
-// showLyrics("グリーンライツ", "top", "right");
-
-console.log("choruses = ", player.getChoruses());
-
-function showLyrics(c) {
-  if (!c) {
-    showLyricsAt("", "middle", "center");
-    return;
-  }
-
-  if (c.charCount >= 10) {
-    showLyricsAt(c.text, "middle", "center");
-    return;
-  }
-
-  showLyricsAt(c.text, "middle", "center");
+const IS_MOBILE = window.innerWidth < 500;
+if (IS_MOBILE) {
+  setLyricsSize("8.8vw");
+} else {
+  setLyricsSize("4.8vw");
 }
 
-function draw(){
+function getLyrics(songTime) {
+  if (IS_MOBILE) {
+    return player.video.findWord(songTime);
+  }
+  return player.video.findPhrase(songTime);
+}
+
+function showLyrics(lyricsObject) {
+  if (!lyricsObject) {
+    showLyricsAt("");
+    return;
+  }
+
+  showLyricsAt(lyricsObject.text);
+}
+
+function draw() {
   //Draw a triangle strip connecting vertices 0-4
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -229,20 +238,13 @@ function draw(){
   let chorus = player.findChorus(position);
   sendChorusToShader(chorus);
 
-  let p = player.video.findPhrase(position);
-  showLyrics(p);
+  showLyrics(getLyrics(position));
 }
 
 draw();
 
 // const SONG_URL = "https://www.youtube.com/watch?v=KdNHFKTKX2s";
 const SONG_URL = "http://www.youtube.com/watch?v=XSLhsjepelI";
-
-const animateText = function (now, unit) {
-  if (unit.contains(now)) {
-    document.querySelector("#lyrics").textContent = unit.text;
-  }
-};
 
 player.addListener({
   onAppReady: (app) => {

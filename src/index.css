@@ -11,8 +11,8 @@ body {
 
 #media {
   position: absolute;
-  right: 5px;
-  bottom: 5px;
+  right: 10px;
+  bottom: 10px;
   z-index: 200;
 }
 
@@ -41,5 +41,4 @@ body {
   text-align: center;
   margin: auto;
   font-weight: bold;
-  font-size: 4.8vw;
 }
