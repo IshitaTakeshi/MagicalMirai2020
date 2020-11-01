@@ -246,8 +246,19 @@ draw();
 // const SONG_URL = "https://www.youtube.com/watch?v=KdNHFKTKX2s";
 const SONG_URL = "http://www.youtube.com/watch?v=XSLhsjepelI";
 
+const playButton = document.querySelector("#play");
+
+function hideOverlay() {
+  document.querySelector("#overlay").style.display = "none";
+}
+
 player.addListener({
   onAppReady: (app) => {
+
+    playButton.addEventListener(
+      "click",
+      () => { player.video && player.requestPlay(); }
+    );
     if (!app.managed) {
       player.createFromSongUrl(SONG_URL);
     }
@@ -258,6 +269,7 @@ player.addListener({
 
   onPlay: () => {
     console.log("player.onPlay");
+    hideOverlay();
   },
 
   onPause: () => {
@@ -274,5 +286,9 @@ player.addListener({
     console.log("player.onStop");
   },
 
-  onTimerReady: () => {}
+  onTimerReady: () => {
+    if (!player.app.managed) {
+      playButton.disabled = false;
+    }
+  }
 });
