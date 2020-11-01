@@ -146,6 +146,7 @@ var widthHandle = getUniformLocation(program, 'width');
 var heightHandle = getUniformLocation(program, 'height');
 var chorusExistsHandle = getUniformLocation(program, 'chorusExists');
 var chorusIndexHandle = getUniformLocation(program, 'chorusIndex');
+var isMobileHandle = getUniformLocation(program, 'isMobile');
 
 gl.uniform1f(widthHandle, window.innerWidth);
 gl.uniform1f(heightHandle, window.innerHeight);
@@ -155,6 +156,10 @@ var thisFrame;
 
 function calcBeatProgress(time, startTime, endTime) {
   return (time - startTime) / (endTime - startTime);
+}
+
+function sendIsMobileToShader() {
+  gl.uniform1i(isMobileHandle, IS_MOBILE);
 }
 
 function sendBeatProgressToShader(beat, position) {
@@ -199,7 +204,6 @@ function showLyricsAt(text) {
   document.querySelector("#lyrics").textContent = text;
 }
 
-
 function getLyrics(songTime) {
   if (IS_MOBILE) {
     return player.video.findWord(songTime);
@@ -241,6 +245,8 @@ function draw() {
 
   showLyrics(getLyrics(position));
 }
+
+sendIsMobileToShader();
 
 setLyricsSize();
 draw();

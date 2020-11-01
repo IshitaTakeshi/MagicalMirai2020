@@ -13,6 +13,7 @@ uniform int beatIndex;
 uniform float songTime;
 uniform float chorusIndex;
 uniform float chorusExists;
+uniform bool isMobile;
 
 const float intensity = 5.0;
 const float radius = 0.008;
@@ -444,6 +445,13 @@ vec3 showRotatingBeams(vec2 pos, float r1, float r2, float t) {
   return color;
 }
 
+float getCenterObjectSize() {
+  if (isMobile) {
+    return 0.3;
+  }
+  return 0.12;
+}
+
 void main() {
     vec2 resolution = vec2(width, height);
 
@@ -457,6 +465,7 @@ void main() {
       return;
     }
 
+    float center_object_size = getCenterObjectSize();
     vec3 crypton_colors[N_COLORS] = getCryptonColors();
     vec3 color = vec3(0.0);
 
