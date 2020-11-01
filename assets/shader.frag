@@ -414,8 +414,8 @@ float rotatingBeam(vec2 pos, float r1, float r2,
   vec2 p2 = r2 * vec2(cos(t2), sin(t2));
 
   float k = fract(beam_time);
-  float a1 = logistic(k, 10.0, 0.70);
-  float a2 = logistic(k, 10.0, 0.76);
+  float a1 = logistic(k, 10.0, 0.26);
+  float a2 = logistic(k, 10.0, 0.33);
   vec2 s1 = p2 + a1 * (p1 - p2);
   vec2 s2 = p2 + a2 * (p1 - p2);
 
@@ -426,16 +426,16 @@ vec3 showRotatingBeams(vec2 pos, float r1, float r2, float t) {
   vec3 crypton_colors[N_COLORS] = getCryptonColors();
 
   vec3 color = vec3(0.0);
-  int n_offsets = 1;
+  int n_offsets = 2;
   for (int j = 0; j < n_offsets; j++) {
     float omega_offset = 2.0 * PI * float(j) / float(n_offsets) + 0.4 * t;
     float beam_offset = 0.0 * float(j);
 
-    int n = N_COLORS;
+    int n = N_COLORS * 5;
     for (int i = 0; i < n; i++) {
       int k = i % N_COLORS;
-      float omega = 2.0 * PI * (0.2 * t + float(i) / float(n)) + omega_offset;
-      float beam_time = 1.0 * t + float(i) / float(n) + beam_offset;
+      float omega = 2.0 * PI * t + 2.0 * PI * float(i) / float(n) + omega_offset;
+      float beam_time = 2.0 * t + float(i) / float(n) + beam_offset;
       float distance_ = rotatingBeam(pos, r1, r2, omega, beam_time);
       float glow = glowMagnitude(distance_, radius, intensity);
       color += calcColor(distance_, glow, crypton_colors[k]);
@@ -463,18 +463,18 @@ void main() {
     // float time = 0.0008 * songTime;
     // color += showHeart(pos, time, color_meiko, color_kaito);
 
-    // color += showStar(pos, 0.0002 * songTime, 0.15);
+    color += showStar(pos, 0.1, color_rinlen);
 
     // color += showRectangles(pos * mix(1.0, 0.0, 0.5), vec2(0.0, 0.0 * height / width), 16);
     // color += showRectangles(pos, vec2(-0.4, -0.4 * height / width), 16);
 
-    // float k = 0.0002 * songTime;
+    float k = 0.0002 * songTime;
     // color += showSpiral(pos, 0.1, k, crypton_colors);
 
-    // color += showRotatingBeams(pos, 0.1, 1.0, k);
+    color += showRotatingBeams(pos, 1.0, 0.10, k);
     // color += showHorizontalBeams(pos, beatIndex, beatProgress);
     // color += showRectangleTunnel(pos, songTime * 0.0001);
-    color += showStarTunnel(pos, songTime * 0.0001);
+    // color += showStarTunnel(pos, songTime * 0.0001);
     //Output to screen
     fragColor = vec4(color,1.0);
 }
