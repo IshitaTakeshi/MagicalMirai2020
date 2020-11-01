@@ -415,7 +415,7 @@ float rotatingBeam(vec2 pos, float r1, float r2,
 
   float k = fract(beam_time);
   float a1 = logistic(k, 10.0, 0.26);
-  float a2 = logistic(k, 10.0, 0.33);
+  float a2 = logistic(k, 10.0, 0.37);
   vec2 s1 = p2 + a1 * (p1 - p2);
   vec2 s2 = p2 + a2 * (p1 - p2);
 
@@ -463,7 +463,7 @@ void main() {
     // float time = 0.0008 * songTime;
     // color += showHeart(pos, time, color_meiko, color_kaito);
 
-    color += showStar(pos, 0.1, color_rinlen);
+    color += showStar(pos, 0.3, color_rinlen);
 
     // color += showRectangles(pos * mix(1.0, 0.0, 0.5), vec2(0.0, 0.0 * height / width), 16);
     // color += showRectangles(pos, vec2(-0.4, -0.4 * height / width), 16);
@@ -471,7 +471,7 @@ void main() {
     float k = 0.0002 * songTime;
     // color += showSpiral(pos, 0.1, k, crypton_colors);
 
-    color += showRotatingBeams(pos, 1.0, 0.10, k);
+    color += showRotatingBeams(pos, 1.0, 0.33, k);
     // color += showHorizontalBeams(pos, beatIndex, beatProgress);
     // color += showRectangleTunnel(pos, songTime * 0.0001);
     // color += showStarTunnel(pos, songTime * 0.0001);
