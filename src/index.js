@@ -147,6 +147,7 @@ var heightHandle = getUniformLocation(program, 'height');
 var chorusExistsHandle = getUniformLocation(program, 'chorusExists');
 var chorusIndexHandle = getUniformLocation(program, 'chorusIndex');
 var isMobileHandle = getUniformLocation(program, 'isMobile');
+var animationIdHandle = getUniformLocation(program, 'animationId');
 
 gl.uniform1f(widthHandle, window.innerWidth);
 gl.uniform1f(heightHandle, window.innerHeight);
@@ -220,6 +221,18 @@ function showLyrics(lyricsObject) {
   showLyricsAt(lyricsObject.text);
 }
 
+// tell shader which animation should be drawn
+function sendAnimationId(animationId) {
+  gl.uniform1i(animationIdHandle, animationId);
+}
+
+function animationId(chorus) {
+  if (chorus == null) {
+    return 1;
+  }
+  return 2;
+}
+
 function draw() {
   //Draw a triangle strip connecting vertices 0-4
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -242,6 +255,8 @@ function draw() {
 
   let chorus = player.findChorus(position);
   sendChorusToShader(chorus);
+
+  sendAnimationId(animationId(chorus));
 
   showLyrics(getLyrics(position));
 }

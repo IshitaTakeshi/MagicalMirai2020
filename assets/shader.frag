@@ -14,6 +14,7 @@ uniform float songTime;
 uniform float chorusIndex;
 uniform float chorusExists;
 uniform bool isMobile;
+uniform int animationId;
 
 const float intensity = 5.0;
 const float radius = 0.008;
@@ -223,16 +224,16 @@ float spiral(vec2 pos, float theta) {
 
 // https://codepen.io/al-ro/pen/BaaBage
 vec2 heartPosition(float t) {
-  float scale = -0.015;
-  return scale * vec2(16.0 * sin(t) * sin(t) * sin(t),
-                      -(13.0 * cos(t) - 5.0 * cos(2.0*t) - 2.0 * cos(3.0*t) - cos(4.0*t)));
+  float x = 16.0 * sin(t) * sin(t) * sin(t);
+  float y = -(13.0 * cos(t) - 5.0 * cos(2.0*t) - 2.0 * cos(3.0*t) - cos(4.0*t));
+  return -0.07 * vec2(x, y);
 }
 
-float heart(vec2 pos, float t) {
+float heart(vec2 pos, float size, float t) {
   vec2 points[POINT_COUNT];
 
   for(int i = 0; i < POINT_COUNT; i++) {
-    points[i] = heartPosition(float(i) * 0.2 + 2.0 * PI * t);
+    points[i] = size * heartPosition(float(i) * 0.2 + 2.0 * PI * t);
   }
 
   return drawSmooth(pos, points);
@@ -287,12 +288,12 @@ vec3 calcColor(float distance_, float glowMagnitude, vec3 glowColor) {
 
 out vec4 fragColor;
 
-vec3 showRectangles(vec2 pos, vec2 offset_, int n) {
+vec3 showRectangleFlower(vec2 pos, vec2 offset_, int n_petals) {
   float d = 0.2;
   vec3 color = vec3(0.0);
-  for(int i = 0; i < n; i++) {
-    float angle = float(i) * 2.0 * PI / float(n);
-    float da = 2.0 * PI / (float(n) * 16.0);
+  for(int i = 0; i < n_petals; i++) {
+    float angle = float(i) * 2.0 * PI / float(n_petals);
+    float da = 2.0 * PI / (float(n_petals) * 16.0);
     float angle1 = angle - da;
     float angle2 = angle + da;
     // vec2 p = pos - d * vec2(sin(angle), cos(angle));
@@ -366,16 +367,16 @@ vec3 showRectangleTunnel(vec2 pos, float time) {
   return color;
 }
 
-vec3 showHeart(vec2 pos, float time, vec3 color1, vec3 color2) {
+vec3 showHeart(vec2 pos, float size, float time, vec3 color1, vec3 color2) {
   vec3 color = vec3(0.0);
   float distance_;
   float glow;
 
-  distance_ = heart(pos, time + 0.0);
+  distance_ = heart(pos, size, time + 0.0);
   glow = glowMagnitude(distance_, radius, intensity);
   color += calcColor(distance_, glow, color1);
 
-  distance_ = heart(pos, time + 0.5);
+  distance_ = heart(pos, size, time + 0.5);
   glow = glowMagnitude(distance_, radius, intensity);
   color += calcColor(distance_, glow, color2);
 
@@ -449,7 +450,45 @@ float getCenterObjectSize() {
   if (isMobile) {
     return 0.3;
   }
-  return 0.12;
+  return 0.10;
+}
+
+vec3 starWithParticles(vec2 pos) {
+  float center_object_size = getCenterObjectSize();
+  vec3 color = vec3(0.0);
+  color += showStar(pos, center_object_size, color_rinlen);
+  color += showRotatingBeams(pos, 1.0, center_object_size + 0.03, 0.0002 * songTime);
+  return color;
+}
+
+vec3 heartWithParticles(vec2 pos) {
+  float center_object_size = getCenterObjectSize();
+  vec3 color = vec3(0.0);
+  color += showHeart(pos, center_object_size, 0.0008 * songTime,
+                     color_meiko, color_kaito);
+  color += showRotatingBeams(pos, 1.0, center_object_size + 0.03, 0.0002 * songTime);
+  return color;
+}
+
+vec3 rectangleTunnel(vec2 pos) {
+  return showRectangleTunnel(pos, songTime * 0.0001);
+}
+
+vec3 starTunnel(vec2 pos) {
+  return showStarTunnel(pos, songTime * 0.0001);
+}
+
+
+vec3 animation(vec2 pos, int animation_id) {
+  if (animation_id == 1) {
+    return heartWithParticles(pos);
+  }
+
+  if (animation_id == 2) {
+    return starWithParticles(pos);
+  }
+
+  return vec3(0.0);
 }
 
 void main() {
@@ -460,30 +499,27 @@ void main() {
     vec2 pos = uv - centre;
     pos.y *= height / width;
 
-    if (beatExists == 0) {
-      fragColor = vec4(vec3(0.0), 1.0);
-      return;
-    }
-
     float center_object_size = getCenterObjectSize();
     vec3 crypton_colors[N_COLORS] = getCryptonColors();
-    vec3 color = vec3(0.0);
+    // vec3 color = vec3(0.0);
 
     // float time = 0.0008 * songTime;
     // color += showHeart(pos, time, color_meiko, color_kaito);
 
-    color += showStar(pos, center_object_size, color_rinlen);
+    // color += showStar(pos, center_object_size, color_rinlen);
 
-    // color += showRectangles(pos * mix(1.0, 0.0, 0.5), vec2(0.0, 0.0 * height / width), 16);
-    // color += showRectangles(pos, vec2(-0.4, -0.4 * height / width), 16);
+    // color += showRectangleFlower(pos * mix(1.0, 0.0, 0.5), vec2(0.0, 0.0 * height / width), 16);
+    // color += showRectangleFlower(pos, vec2(-0.4, -0.4 * height / width), 16);
 
-    float k = 0.0002 * songTime;
+    // float k = 0.0002 * songTime;
     // color += showSpiral(pos, 0.1, k, crypton_colors);
 
-    color += showRotatingBeams(pos, 1.0, center_object_size + 0.03, k);
+    // color += showRotatingBeams(pos, 1.0, center_object_size + 0.03, k);
     // color += showHorizontalBeams(pos, beatIndex, beatProgress);
     // color += showRectangleTunnel(pos, songTime * 0.0001);
     // color += showStarTunnel(pos, songTime * 0.0001);
+
     //Output to screen
+    vec3 color = animation(pos, animationId);
     fragColor = vec4(color,1.0);
 }
