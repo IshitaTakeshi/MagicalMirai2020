@@ -323,13 +323,22 @@ vec3 showRotatedRectangle(vec2 pos, float size, float theta, vec3 rgb) {
   return calcColor(distance_, glow, rgb);
 }
 
-vec3 showHorizontalBeams(vec2 pos, int beatIndex, float beatProgress) {
-  int i = min(3, beatIndex);  // max beat index = 1
-  float ys[4] = float[](-0.3, -0.1, 0.1, 0.3);
-  vec3 colors[4] = vec3[](color_rinlen, color_rinlen, color_miku, color_luka);
-  float distance_ = line(pos, beatProgress, ys[i]);
-  float glow = 0.1 * glowMagnitude(distance_, radius, intensity);
-  return calcColor(distance_, glow, colors[i]);
+vec3 showHorizontalBeam(vec2 pos, vec3 color, float y, float time) {
+  float distance_ = line(pos, time, y);
+  float glow = 1.0 * glowMagnitude(distance_, radius, intensity);
+  return calcColor(distance_, glow, color);
+}
+
+vec3 showHorizontalBeams(vec2 pos, float y, int beatIndex, float beatProgress) {
+  int i = min(3, beatIndex);
+  float hue1 = float(i + 0) / float(8);
+  vec3 color1 = hsv2rgb(vec3(hue1, 1.0, 1.0));
+  float hue2 = float(i + 4) / float(8);
+  vec3 color2 = hsv2rgb(vec3(hue2, 1.0, 1.0));
+  vec3 color = vec3(0.0);
+  color += showHorizontalBeam(pos, color1, +y, beatProgress);
+  color += showHorizontalBeam(pos, color2, -y, beatProgress);
+  return color;
 }
 
 vec3 showStarTunnel(vec2 pos, float time) {
@@ -472,7 +481,11 @@ vec3 starTunnel(vec2 pos) {
 }
 
 vec3 horizontalBeams(vec2 pos) {
-  return showHorizontalBeams(pos, beatIndex, beatProgress);
+  float center_object_size = getCenterObjectSize();
+  vec3 color = vec3(0.0);
+  color += showStar(pos, center_object_size, color_rinlen);
+  color += showHorizontalBeams(pos, center_object_size + 0.1, beatIndex, beatProgress);
+  return color;
 }
 
 vec3 animation(vec2 pos, int section) {
