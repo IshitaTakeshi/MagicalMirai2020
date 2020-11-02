@@ -411,6 +411,32 @@ vec3 showSpiral(vec2 pos, float size, float time, vec3 colors[N_COLORS]) {
   return color;
 }
 
+float beamFromCenter(vec2 pos, float r1, float r2, float angle, float beatProgress) {
+  float a1 = logistic(beatProgress, 2.0, 0.66);
+  float a2 = logistic(beatProgress, 2.0, 0.94);
+
+  vec2 p1 = r1 * vec2(cos(angle), sin(angle));
+  vec2 p2 = r2 * vec2(cos(angle), sin(angle));
+
+  vec2 s1 = p1 + a1 * (p2 - p1);
+  vec2 s2 = p1 + a2 * (p2 - p1);
+  return udSegment(pos, s1, s2);
+}
+
+vec3 showBeamsFromCenter(vec2 pos, float r1, float r2, int n, float beatProgress) {
+  int i = min(beatIndex, 3);
+  vec3 color = vec3(0.0);
+  for (int j = 0; j < n; j++) {
+    float offset_ = 2.0 * PI * float(j) / float(n);
+    float angle = (float(i) / float(4)) * (2.0 * PI / float(n)) + offset_;
+    float distance_ = beamFromCenter(pos, r1, r2, angle, beatProgress);
+    float glow = 0.004 * glowMagnitude(distance_, radius, 8.0);
+    vec3 rgb = hsv2rgb(vec3(float(n * j + i) / float(4 * n), 1.0, 1.0));
+    color += calcColor(distance_, glow, rgb);
+  }
+  return color;
+}
+
 float rotatingBeam(vec2 pos, float r1, float r2,
                    float omega, float beam_time) {
   float t1 = omega;
@@ -487,6 +513,11 @@ vec3 horizontalBeams(vec2 pos) {
   color += showStar(pos, center_object_size, color_rinlen);
   color += showHorizontalBeams(pos, center_object_size + 0.1, beatIndex, beatProgress);
   return color;
+}
+
+vec3 beamsFromCenter(vec2 pos) {
+  float center_object_size = getCenterObjectSize();
+  return showBeamsFromCenter(pos, center_object_size, 1.0, 2, beatProgress);
 }
 
 vec3 animation(vec2 pos, int section) {
