@@ -193,9 +193,13 @@ float sdTriangle(in vec2 p0, in vec2 p1, in vec2 p2, in vec2 p)
 	return -sqrt(d.x)*sign(d.y);
 }
 
-//https://www.shadertoy.com/view/3s3GDn
+// https://www.shadertoy.com/view/3s3GDn
 float glowMagnitude(float dist, float radius, float intensity) {
     return pow(radius/dist, intensity);
+}
+
+float logistic(float t, float alpha, float beta) {
+  return 1.0 / (1.0 + exp(-alpha * (t - beta)));
 }
 
 float drawSmooth(vec2 pos, vec2 points[POINT_COUNT]) {
@@ -243,16 +247,10 @@ vec2 linePosition(float x, float y) {
 }
 
 float line(vec2 pos, float t, float y) {
-  vec2 points[POINT_COUNT];
-
-  float scale = 1.4;
-  for(int i = 0; i < POINT_COUNT; i++) {
-    float t = float(i) * 0.1 + t * 0.5 * PI;
-    float x = scale * (abs(sin(t)) - 0.5);
-    points[i] = linePosition(x, y);
-  }
-
-  return drawSmooth(pos, points);
+  float scale = 1.2;
+  float x1 = scale * logistic(t, 10.0, 0.4) - 0.5 * scale;
+  float x2 = scale * logistic(t, 10.0, 0.6) - 0.5 * scale;
+  return udSegment(pos, vec2(x1, y), vec2(x2, y));
 }
 
 float star(vec2 pos, float size) {
@@ -401,10 +399,6 @@ vec3 showSpiral(vec2 pos, float size, float time, vec3 colors[N_COLORS]) {
     color += calcColor(distance_, glow, colors[c]);
   }
   return color;
-}
-
-float logistic(float t, float alpha, float beta) {
-  return 1.0 / (1.0 + exp(-alpha * (t - beta)));
 }
 
 float rotatingBeam(vec2 pos, float r1, float r2,
