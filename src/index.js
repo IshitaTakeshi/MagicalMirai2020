@@ -295,6 +295,7 @@ draw();
 const SONG_URL = "http://www.youtube.com/watch?v=XSLhsjepelI";
 
 const shareMessage = "https://twitter.com/intent/tweet?text="
+                   + "グリーンライツ・セレナーデを聴いてみませんか？ "
                    + window.location.href + "&hashtags=TextAlive";
 const playButton = document.querySelector("#play");
 const shareButton = document.querySelector("#twitter-share-button");
