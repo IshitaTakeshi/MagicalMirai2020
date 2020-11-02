@@ -147,8 +147,6 @@ var beatIndexHandle = getUniformLocation(program, 'beatIndex');
 var songTimeHandle = getUniformLocation(program, 'songTime');
 var widthHandle = getUniformLocation(program, 'width');
 var heightHandle = getUniformLocation(program, 'height');
-var chorusExistsHandle = getUniformLocation(program, 'chorusExists');
-var chorusIndexHandle = getUniformLocation(program, 'chorusIndex');
 var isMobileHandle = getUniformLocation(program, 'isMobile');
 var animationIdHandle = getUniformLocation(program, 'animationId');
 var brightnessHandle = getUniformLocation(program, 'brightness');
@@ -178,16 +176,6 @@ function sendBeatProgressToShader(beat, position) {
   // subtract 1 because beat.position starts from 1
   gl.uniform1i(beatIndexHandle, beat.position - 1);
   gl.uniform1f(beatProgressHandle, beatProgress);
-}
-
-function sendChorusToShader(chorus) {
-  if (chorus == null) {
-    gl.uniform1i(chorusExistsHandle, 0);
-    return;
-  }
-
-  gl.uniform1i(chorusIndexHandle, chorus.index);
-  gl.uniform1i(chorusExistsHandle, 1);
 }
 
 function sendSongTimeToShader(songTime) {
@@ -278,9 +266,6 @@ function draw() {
 
   let brightness = calcBrightness(position);
   sendBrightnessToShader(brightness);
-
-  let chorus = player.findChorus(position);
-  sendChorusToShader(chorus);
 
   sendAnimationId(animationId(chorus));
 

@@ -11,8 +11,6 @@ uniform float beatProgress;
 uniform int beatExists;
 uniform int beatIndex;
 uniform float songTime;
-uniform float chorusIndex;
-uniform float chorusExists;
 uniform bool isMobile;
 uniform int animationId;
 uniform float brightness;
