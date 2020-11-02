@@ -200,7 +200,7 @@ function calcBrightness(progress) {
 function setLyricsSize(size) {
   let element = document.querySelector("#lyrics");
   if (IS_MOBILE) {
-    element.style.fontSize = "8.8vw";
+    element.style.fontSize = "10.8vw";
   } else {
     element.style.fontSize = "4.8vw";
   }
