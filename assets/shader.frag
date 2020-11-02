@@ -7,6 +7,7 @@ uniform float height;
 
 #define PI 3.1415926538
 
+// TODO camelCase to snake_case
 uniform float beatProgress;
 uniform int beatExists;
 uniform int beatIndex;
@@ -19,7 +20,7 @@ const float intensity = 5.0;
 const float radius = 0.008;
 
 #define N_COLORS 5
-#define POINT_COUNT 4
+#define POINT_COUNT 8
 
 const vec3 color_meiko = vec3(1, 0, 0);
 const vec3 color_rinlen = vec3(1, 1, 0);
@@ -308,7 +309,7 @@ vec3 showRectangleFlower(vec2 pos, vec2 offset_, int n_petals) {
 
 vec3 showStar(vec2 pos, float size, vec3 rgb) {
   float distance_ = star(pos, size);
-  float glow = glowMagnitude(distance_, radius, 8.0);
+  float glow = 10.0 * glowMagnitude(distance_, radius, 8.0);
   return calcColor(distance_, glow, rgb);
 }
 
@@ -418,8 +419,8 @@ float rotatingBeam(vec2 pos, float r1, float r2,
   vec2 p2 = r2 * vec2(cos(t2), sin(t2));
 
   float k = fract(beam_time);
-  float a1 = logistic(k, 10.0, 0.26);
-  float a2 = logistic(k, 10.0, 0.37);
+  float a1 = logistic(k, 10.0, 0.30);
+  float a2 = logistic(k, 10.0, 0.39);
   vec2 s1 = p2 + a1 * (p1 - p2);
   vec2 s2 = p2 + a2 * (p1 - p2);
 
