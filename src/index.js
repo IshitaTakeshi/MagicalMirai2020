@@ -323,14 +323,6 @@ function enablePlayButton() {
   playButton.disabled = false;
 }
 
-function showCanvas() {
-  canvas.style.display = "";
-}
-
-function hideCanvas() {
-  canvas.style.display = "none";
-}
-
 showShareButton();
 // hideShareButton();
 
@@ -351,7 +343,6 @@ player.addListener({
 
   onPlay: () => {
     console.log("player.onPlay");
-    showCanvas();
     hideOverlay();
   },
 
@@ -364,7 +355,6 @@ player.addListener({
   },
 
   onStop: () => {
-    hideCanvas();
     showOverlay();
     hidePlayButton();
     showShareButton();
