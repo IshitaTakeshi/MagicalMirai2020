@@ -148,7 +148,7 @@ var songTimeHandle = getUniformLocation(program, 'songTime');
 var widthHandle = getUniformLocation(program, 'width');
 var heightHandle = getUniformLocation(program, 'height');
 var isMobileHandle = getUniformLocation(program, 'isMobile');
-var animationIdHandle = getUniformLocation(program, 'animationId');
+var sectionIndexHandle = getUniformLocation(program, 'sectionIndex');
 var brightnessHandle = getUniformLocation(program, 'brightness');
 
 gl.uniform1f(widthHandle, window.innerWidth);
@@ -233,15 +233,26 @@ function sendBrightnessToShader(brightness) {
 }
 
 // tell shader which animation should be drawn
-function sendAnimationId(animationId) {
-  gl.uniform1i(animationIdHandle, animationId);
+function sendAnimationId(sectionIndex) {
+  gl.uniform1i(sectionIndexHandle, sectionIndex);
 }
 
-function animationId(chorus) {
-  if (chorus == null) {
-    return 1;
+function sectionIndex(position) {
+  let n = sectionBorderTimes.length;
+  if (position < sectionBorderTimes[0]) {
+    return 0;
   }
-  return 2;
+  if (sectionBorderTimes[n-1] <= position) {
+    return n;
+  }
+
+  for (let i = 0; i < sectionBorderTimes.length-1; i++) {
+    if (sectionBorderTimes[i] <= position && position < sectionBorderTimes[i+1]) {
+      return i + 1;
+    }
+  }
+
+  throw "Unexpected song position";
 }
 
 function draw() {
@@ -267,7 +278,11 @@ function draw() {
   let brightness = calcBrightness(position);
   sendBrightnessToShader(brightness);
 
-  sendAnimationId(animationId(chorus));
+  let chorus = player.findChorus(position);
+
+  let index = sectionIndex(position)
+  console.log("section index = ", index);
+  sendAnimationId(index);
 
   showLyrics(getLyrics(position));
 }
@@ -297,8 +312,8 @@ function initBorderTimes(choruses) {
   let times = [];
   for (let c of choruses) {
     times.push(c.startTime);
-    times.push(c.endTime);
   }
+  times.push(choruses[choruses.length-1].endTime);
   return times;
 }
 

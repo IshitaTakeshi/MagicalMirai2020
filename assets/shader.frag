@@ -12,7 +12,7 @@ uniform int beatExists;
 uniform int beatIndex;
 uniform float songTime;
 uniform bool isMobile;
-uniform int animationId;
+uniform int sectionIndex;
 uniform float brightness;
 
 const float intensity = 5.0;
@@ -477,17 +477,77 @@ vec3 starTunnel(vec2 pos) {
   return showStarTunnel(pos, songTime * 0.0001);
 }
 
+vec3 horizontalBeams(vec2 pos) {
+  return showHorizontalBeams(pos, beatIndex, beatProgress);
+}
 
-vec3 animation(vec2 pos, int animation_id) {
-  if (animation_id == 1) {
-    return heartWithParticles(pos);
-  }
-
-  if (animation_id == 2) {
+vec3 animation(vec2 pos, int section) {
+  if (section == 0) {
+    // intro
     return starWithParticles(pos);
   }
 
-  return vec3(0.0);
+  if (section == 1) {
+    // 照らし出してグリーンライツ
+    return starWithParticles(pos);
+  }
+
+  if (section == 2) {
+    // 改めて言うことでもないけど
+    return horizontalBeams(pos);
+  }
+
+  if (section == 3) {
+    // 走り出したキミにもっと
+    return rectangleTunnel(pos);
+  }
+
+  if (section == 4) {
+    // 今までもいつまでも隣にいたいのは
+    return rectangleTunnel(pos);
+  }
+
+  if (section == 5) {
+    // 好きをもっと信じるのさ
+    return starWithParticles(pos);
+  }
+
+  if (section == 6) {
+    // 照らし出してグリーンライツ
+    return starWithParticles(pos);
+  }
+
+  if (section == 7) {
+    // 堪えきれない夜には隣で泣いていいよ
+    return starTunnel(pos);
+  }
+
+  if (section == 8) {
+    // 走り出したキミにもっと
+    return starTunnel(pos);
+  }
+
+  if (section == 9) {
+    // 照らし出してグリーンライツ
+    return starTunnel(pos);
+  }
+
+  if (section == 10) {
+    // 振り返ると遠く手を振ってくれるキミも
+    return starTunnel(pos);
+  }
+
+  if (section == 11) {
+    // 誰にも真似できないあなたを抱きしめて
+    return starTunnel(pos);
+  }
+
+  if (section == 12) {
+    // outro
+    return starTunnel(pos);
+  }
+
+  return vec3(0.0);  // should not reach here
 }
 
 void main() {
@@ -519,6 +579,6 @@ void main() {
     // color += showStarTunnel(pos, songTime * 0.0001);
 
     //Output to screen
-    vec3 color = animation(pos, animationId);
+    vec3 color = animation(pos, sectionIndex);
     fragColor = vec4(brightness * color, 1.0);
 }
