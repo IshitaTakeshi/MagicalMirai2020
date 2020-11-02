@@ -15,6 +15,7 @@ uniform float chorusIndex;
 uniform float chorusExists;
 uniform bool isMobile;
 uniform int animationId;
+uniform float brightness;
 
 const float intensity = 5.0;
 const float radius = 0.008;
@@ -521,5 +522,5 @@ void main() {
 
     //Output to screen
     vec3 color = animation(pos, animationId);
-    fragColor = vec4(color,1.0);
+    fragColor = vec4(brightness * color, 1.0);
 }

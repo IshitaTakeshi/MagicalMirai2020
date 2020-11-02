@@ -40,6 +40,9 @@ const player = new Player({
 
 const IS_MOBILE = window.innerWidth < 500;
 
+// begin / end time of chorus sections
+let sectionBorderTimes = [];
+
 var canvas = document.getElementById("canvas");
 
 canvas.width = window.innerWidth;
@@ -148,6 +151,7 @@ var chorusExistsHandle = getUniformLocation(program, 'chorusExists');
 var chorusIndexHandle = getUniformLocation(program, 'chorusIndex');
 var isMobileHandle = getUniformLocation(program, 'isMobile');
 var animationIdHandle = getUniformLocation(program, 'animationId');
+var brightnessHandle = getUniformLocation(program, 'brightness');
 
 gl.uniform1f(widthHandle, window.innerWidth);
 gl.uniform1f(heightHandle, window.innerHeight);
@@ -190,6 +194,21 @@ function sendSongTimeToShader(songTime) {
   gl.uniform1f(songTimeHandle, songTime);
 }
 
+function fadeOut(position) {
+  let range = 800;  // milli second
+  for (let borderTime of sectionBorderTimes) {
+    if (position <= borderTime && borderTime - position <= range) {
+      let k = (borderTime - position) / range;  // k <- [0.0, 1.0]
+      return k * k;
+    }
+  }
+  return 1.0;
+}
+
+function calcBrightness(progress) {
+  return fadeOut(progress);
+}
+
 function setLyricsSize(size) {
   let element = document.querySelector("#lyrics");
   if (IS_MOBILE) {
@@ -219,6 +238,10 @@ function showLyrics(lyricsObject) {
   }
 
   showLyricsAt(lyricsObject.text);
+}
+
+function sendBrightnessToShader(brightness) {
+  gl.uniform1f(brightnessHandle, brightness);
 }
 
 // tell shader which animation should be drawn
@@ -253,6 +276,9 @@ function draw() {
 
   sendSongTimeToShader(position);
 
+  let brightness = calcBrightness(position);
+  sendBrightnessToShader(brightness);
+
   let chorus = player.findChorus(position);
   sendChorusToShader(chorus);
 
@@ -273,6 +299,15 @@ const playButton = document.querySelector("#play");
 
 function hideOverlay() {
   document.querySelector("#overlay").style.display = "none";
+}
+
+function initBorderTimes(choruses) {
+  let times = [];
+  for (let c of choruses) {
+    times.push(c.startTime);
+    times.push(c.endTime);
+  }
+  return times;
 }
 
 player.addListener({
@@ -313,5 +348,8 @@ player.addListener({
     if (!player.app.managed) {
       playButton.disabled = false;
     }
+
+    let choruses = player.getChoruses();
+    sectionBorderTimes = initBorderTimes(choruses);
   }
 });
