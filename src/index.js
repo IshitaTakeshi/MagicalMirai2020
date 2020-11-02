@@ -277,13 +277,20 @@ sendIsMobileToShader();
 setLyricsSize();
 draw();
 
-// const SONG_URL = "https://www.youtube.com/watch?v=KdNHFKTKX2s";
 const SONG_URL = "http://www.youtube.com/watch?v=XSLhsjepelI";
 
+const shareMessage = "https://twitter.com/intent/tweet?text="
+                   + window.location.href + "&hashtags=TextAlive";
 const playButton = document.querySelector("#play");
+const shareButton = document.querySelector("#twitter-share-button");
+const overlay = document.querySelector("#overlay");
 
 function hideOverlay() {
-  document.querySelector("#overlay").style.display = "none";
+  overlay.style.display = "none";
+}
+
+function showOverlay() {
+  overlay.style.display = "";
 }
 
 function initBorderTimes(choruses) {
@@ -294,6 +301,38 @@ function initBorderTimes(choruses) {
   }
   return times;
 }
+
+function hideShareButton() {
+  shareButton.style.display = "none";
+}
+
+function showShareButton() {
+  shareButton.href = shareMessage;
+  shareButton.style.display = "block";
+}
+
+function hidePlayButton() {
+  playButton.style.display = "none";
+}
+
+function showPlayButton() {
+  playButton.style.display = "";
+}
+
+function enablePlayButton() {
+  playButton.disabled = false;
+}
+
+function showCanvas() {
+  canvas.style.display = "";
+}
+
+function hideCanvas() {
+  canvas.style.display = "none";
+}
+
+showShareButton();
+// hideShareButton();
 
 player.addListener({
   onAppReady: (app) => {
@@ -312,6 +351,7 @@ player.addListener({
 
   onPlay: () => {
     console.log("player.onPlay");
+    showCanvas();
     hideOverlay();
   },
 
@@ -324,14 +364,20 @@ player.addListener({
   },
 
   onStop: () => {
+    hideCanvas();
+    showOverlay();
+    hidePlayButton();
+    showShareButton();
+
     if (!player.app.managed) {
+      showPlayButton();
     }
     console.log("player.onStop");
   },
 
   onTimerReady: () => {
     if (!player.app.managed) {
-      playButton.disabled = false;
+      enablePlayButton();
     }
 
     let choruses = player.getChoruses();
