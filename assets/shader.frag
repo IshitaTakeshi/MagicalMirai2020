@@ -320,7 +320,7 @@ vec3 showRotatedRectangle(vec2 pos, float size, float theta, vec3 rgb) {
   vec2 p1 = vec2(cos(angle1), sin(angle1));
   vec2 p2 = vec2(cos(angle2), sin(angle2));
   float distance_ = rectangle(pos, size * p1, size * p2, 2.0 * size);
-  float glow = 2.0 * glowMagnitude(distance_, radius, 2.0);
+  float glow = 2.0 * glowMagnitude(distance_, radius, 4.0);
   return calcColor(distance_, glow, rgb);
 }
 
