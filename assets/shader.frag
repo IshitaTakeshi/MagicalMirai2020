@@ -556,7 +556,10 @@ vec3 horizontalBeams(vec2 pos) {
 
 vec3 beamsFromCenter(vec2 pos) {
   float center_object_size = getCenterObjectSize();
-  return showBeamsFromCenter(pos, center_object_size, 1.0, 2, beatProgress);
+  vec3 color = vec3(0.0);
+  color += showStar(pos, center_object_size, color_rinlen);
+  color += showBeamsFromCenter(pos, center_object_size, 1.0, 2, beatProgress);
+  return color;
 }
 
 vec3 animation(vec2 pos, int section) {
@@ -571,53 +574,53 @@ vec3 animation(vec2 pos, int section) {
   }
 
   if (section == 2) {
-    // 改めて言うことでもないけど
-    return horizontalBeams(pos);
+    // 走り出したキミにもっと
+    return triangleTunnel(pos);
   }
 
-  if (section == 3) {
-    // 走り出したキミにもっと
+  if (section == 2) {
+    // 照らし出してグリーンライツ
     return rectangleTunnel(pos);
   }
 
   if (section == 4) {
     // 今までもいつまでも隣にいたいのは
-    return rectangleTunnel(pos);
+    return horizontalBeams(pos);
   }
 
   if (section == 5) {
     // 好きをもっと信じるのさ
-    return starWithParticles(pos);
+    return starTunnel(pos); //
   }
 
   if (section == 6) {
     // 照らし出してグリーンライツ
-    return starWithParticles(pos);
+    return triangleTunnel(pos);
   }
 
   if (section == 7) {
     // 堪えきれない夜には隣で泣いていいよ
-    return starTunnel(pos);
+    return rectangleTunnel(pos);
   }
 
   if (section == 8) {
     // 走り出したキミにもっと
-    return starTunnel(pos);
+    return starWithParticles(pos);
   }
 
   if (section == 9) {
     // 照らし出してグリーンライツ
-    return starTunnel(pos);
+    return starWithParticles(pos);
   }
 
   if (section == 10) {
     // 振り返ると遠く手を振ってくれるキミも
-    return starTunnel(pos);
+    return starWithParticles(pos);
   }
 
   if (section == 11) {
     // 誰にも真似できないあなたを抱きしめて
-    return starTunnel(pos);
+    return starWithParticles(pos);
   }
 
   if (section == 12) {
@@ -634,29 +637,9 @@ void main() {
     vec2 uv = gl_FragCoord.xy/resolution.xy;
     vec2 centre = vec2(0.5, 0.5);
     vec2 pos = uv - centre;
+    // scale height to fit the aspect ratio to the canvas
     pos.y *= height / width;
 
-    float center_object_size = getCenterObjectSize();
-    vec3 crypton_colors[N_COLORS] = getCryptonColors();
-    // vec3 color = vec3(0.0);
-
-    // float time = 0.0008 * songTime;
-    // color += showHeart(pos, time, color_meiko, color_kaito);
-
-    // color += showStar(pos, center_object_size, color_rinlen);
-
-    // color += showRectangleFlower(pos * mix(1.0, 0.0, 0.5), vec2(0.0, 0.0 * height / width), 16);
-    // color += showRectangleFlower(pos, vec2(-0.4, -0.4 * height / width), 16);
-
-    // float k = 0.0002 * songTime;
-    // color += showSpiral(pos, 0.1, k, crypton_colors);
-
-    // color += showRotatingBeams(pos, 1.0, center_object_size + 0.03, k);
-    // color += showHorizontalBeams(pos, beatIndex, beatProgress);
-    // color += showRectangleTunnel(pos, songTime * 0.0001);
-    // color += showStarTunnel(pos, songTime * 0.0001);
-
-    //Output to screen
     vec3 color = animation(pos, sectionIndex);
     fragColor = vec4(brightness * color, 1.0);
 }
