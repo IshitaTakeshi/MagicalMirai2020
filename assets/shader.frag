@@ -657,22 +657,22 @@ vec3 animation(vec2 pos, int section) {
 
   if (section == 8) {
     // 走り出したキミにもっと
-    return starTunnel(pos);
+    return starWithParticles(pos);
   }
 
   if (section == 9) {
     // 照らし出してグリーンライツ
-    return starTunnel(pos);
+    return starWithParticles(pos);
   }
 
   if (section == 10) {
     // 振り返ると遠く手を振ってくれるキミも
-    return rectangleTunnel(pos);
+    return starTunnel(pos);
   }
 
   if (section == 11) {
     // 誰にも真似できないあなたを抱きしめて
-    return rectangleTunnel(pos);
+    return starTunnel(pos);
   }
 
   if (section == 12) {
