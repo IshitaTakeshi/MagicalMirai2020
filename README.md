@@ -1,4 +1,4 @@
-## マジカルミライ2020プログラミングコンテスト応募作品
+# マジカルミライ2020プログラミングコンテスト応募作品
 
 <a href="https://youtu.be/bj0sZPhNi7A">
 <img src="demo.gif" width="100%">
