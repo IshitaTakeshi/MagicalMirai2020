@@ -647,7 +647,7 @@ vec3 animation(vec2 pos, int section) {
 
   if (section == 6) {
     // 照らし出してグリーンライツ
-    return rectangleTunnel(pos);
+    return starWithParticles(pos);
   }
 
   if (section == 7) {
