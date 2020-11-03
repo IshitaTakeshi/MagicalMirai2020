@@ -207,6 +207,20 @@ float sdTriangle(in vec2 p0, in vec2 p1, in vec2 p2, in vec2 p)
 	return -sqrt(d.x)*sign(d.y);
 }
 
+// Copyright © 2018 Inigo Quilez
+// The original code is distributed under the MIT license
+// https://www.iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+// signed distance to a 2D triangle
+float sdPentagon( in vec2 p, in float r )
+{
+    const vec3 k = vec3(0.809016994,0.587785252,0.726542528);
+    p.x = abs(p.x);
+    p -= 2.0*min(dot(vec2(-k.x,k.y),p),0.0)*vec2(-k.x,k.y);
+    p -= 2.0*min(dot(vec2( k.x,k.y),p),0.0)*vec2( k.x,k.y);
+    p -= vec2(clamp(p.x,-r*k.z,r*k.z),r);
+    return length(p)*sign(p.y);
+}
+
 // https://www.shadertoy.com/view/3s3GDn
 float glowMagnitude(float dist, float radius, float intensity) {
     return pow(radius/dist, intensity);
@@ -275,6 +289,10 @@ float rectangle(vec2 pos, vec2 a, vec2 b, float theta) {
   return abs(sdOrientedBox(pos, a, b, theta));
 }
 
+float pentagon(vec2 pos, float size) {
+  return abs(sdPentagon(pos, size));
+}
+
 float triangle(vec2 pos, float size, float angle_offset) {
   vec2 points[3];
   for(int i = 0; i < 3; i++) {
@@ -332,6 +350,12 @@ vec3 showTriangle(vec2 pos, float size, vec3 rgb, float angle) {
   return calcColor(distance_, glow, rgb);
 }
 
+vec3 showPentagon(vec2 pos, float size, vec3 rgb) {
+  float distance_ = pentagon(pos, size);
+  float glow = 10.0 * glowMagnitude(distance_, radius, 8.0);
+  return calcColor(distance_, glow, rgb);
+}
+
 vec3 showRotatedRectangle(vec2 pos, float size, float theta, vec3 rgb) {
   float da = PI / 2.0;
   float angle1 = theta - da;
@@ -380,7 +404,7 @@ vec3 showStarTunnel(vec2 pos, float time) {
   return color;
 }
 
-vec3 showTriangleTunnel(vec2 pos, float time) {
+vec3 showPentagonTunnel(vec2 pos, float time) {
   vec3 crypton_colors[N_COLORS] = getCryptonColors();
 
   vec3 color = vec3(0.0);
@@ -542,8 +566,8 @@ vec3 starTunnel(vec2 pos) {
   return showStarTunnel(pos, songTime * 0.0001);
 }
 
-vec3 triangleTunnel(vec2 pos) {
-  return showTriangleTunnel(pos, songTime * 0.0001);
+vec3 pentagonTunnel(vec2 pos) {
+  return showPentagonTunnel(pos, songTime * 0.0001);
 }
 
 vec3 horizontalBeams(vec2 pos) {
@@ -575,7 +599,7 @@ vec3 animation(vec2 pos, int section) {
 
   if (section == 2) {
     // 走り出したキミにもっと
-    return triangleTunnel(pos);
+    return pentagonTunnel(pos);
   }
 
   if (section == 2) {
@@ -595,7 +619,7 @@ vec3 animation(vec2 pos, int section) {
 
   if (section == 6) {
     // 照らし出してグリーンライツ
-    return triangleTunnel(pos);
+    return pentagonTunnel(pos);
   }
 
   if (section == 7) {
