@@ -26,9 +26,10 @@ import { Player, Ease } from "textalive-app-api";
 import * as vertexSourceDict from '../assets/shader.vert';
 import * as fragmentSourceDict from '../assets/shader.frag';
 
-console.log("This code is provided under the MIT license with the following authors");
+console.log("This code is provided under the MIT license by the following authors");
 console.log("Jun Kato <i@junkato.jp> (https://junkato.jp)");
 console.log("Takeshi Ishita <ishitah.takeshi@gmail.com> (https://ishitatakeshi.netlify.com/)");
+
 
 const player = new Player({
   app: {
