@@ -637,7 +637,7 @@ vec3 animation(vec2 pos, int section) {
 
   if (section == 4) {
     // 今までもいつまでも隣にいたいのは
-    return shurikenTunnel(pos);
+    return starTunnel(pos);
   }
 
   if (section == 5) {
