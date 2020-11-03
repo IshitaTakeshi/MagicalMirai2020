@@ -6,6 +6,8 @@
 
 ## 実行方法
 
+WebGLを有効にしてください
+
 ```
 git clone https://github.com/IshitaTakeshi/MagicalMirai2020.git
 cd MagicalMirai2020
