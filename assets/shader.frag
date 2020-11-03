@@ -136,6 +136,19 @@ float sdStar5(in vec2 p, in float r, in float rf)
     return length(p-ba*h) * sign(p.y*ba.x-p.x*ba.y);
 }
 
+float ndot(vec2 a, vec2 b ) { return a.x*b.x - a.y*b.y; }
+
+// Copyright © 2018 Inigo Quilez
+// The original code is distributed under the MIT license
+// Rhombus - exact   (https://www.shadertoy.com/view/XdXcRB)
+float sdRhombus( in vec2 p, in vec2 b )
+{
+    vec2 q = abs(p);
+    float h = clamp((-2.0*ndot(q,b)+ndot(b,b))/dot(b,b),-1.0,1.0);
+    float d = length( q - 0.5*b*vec2(1.0-h,1.0+h) );
+    return d * sign( q.x*b.y + q.y*b.x - b.x*b.y );
+}
+
 // Copyright © 2018 Inigo Quilez
 // The original code is distributed under the MIT license
 // https://www.shadertoy.com/view/3tSGDy
