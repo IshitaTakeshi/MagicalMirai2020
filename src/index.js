@@ -351,7 +351,17 @@ player.addListener({
       () => { player.video && player.requestPlay(); }
     );
     if (!app.managed) {
-      player.createFromSongUrl(SONG_URL);
+      player.createFromSongUrl(SONG_URL, {
+        video: {
+          // 音楽地図訂正履歴: https://songle.jp/songs/1249410/history
+          beatId: 3818919,
+          chordId: 1207328,
+          repetitiveSegmentId: 1942131,
+          // 歌詞タイミング訂正履歴: https://textalive.jp/lyrics/www.youtube.com%2Fwatch%3Fv%3DXSLhsjepelI
+          lyricId: 50145,
+          lyricDiffId: 3168
+        }
+      });
     }
   },
 
