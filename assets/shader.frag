@@ -462,19 +462,14 @@ vec3 showShurikenTunnel(vec2 pos, float time) {
   return color;
 }
 
-vec3 showHeart(vec2 pos, float size, float time, vec3 color1, vec3 color2) {
+vec3 showHeart(vec2 pos, float size, float time, vec3 rgb) {
   vec3 color = vec3(0.0);
   float distance_;
   float glow;
 
   distance_ = heart(pos, size, time + 0.0);
   glow = glowMagnitude(distance_, radius, intensity);
-  color += calcColor(distance_, glow, color1);
-
-  distance_ = heart(pos, size, time + 0.5);
-  glow = glowMagnitude(distance_, radius, intensity);
-  color += calcColor(distance_, glow, color2);
-
+  color += calcColor(distance_, glow, rgb);
   return color;
 }
 
@@ -581,8 +576,8 @@ vec3 starWithParticles(vec2 pos) {
 vec3 heartWithParticles(vec2 pos) {
   float center_object_size = getCenterObjectSize();
   vec3 color = vec3(0.0);
-  color += showHeart(pos, center_object_size, 0.0008 * songTime,
-                     color_meiko, color_kaito);
+  color += showHeart(pos, center_object_size - 0.03,
+                     0.0010 * songTime, color_rinlen);
   color += showRotatingBeams(pos, 1.0, center_object_size + 0.03, 0.0002 * songTime);
   return color;
 }
@@ -632,12 +627,12 @@ vec3 animation(vec2 pos, int section) {
 
   if (section == 2) {
     // 走り出したキミにもっと
-    return starWithParticles(pos);
+    return rectangleTunnel(pos);
   }
 
   if (section == 3) {
     // 照らし出してグリーンライツ
-    return rectangleTunnel(pos);
+    return starWithParticles(pos);
   }
 
   if (section == 4) {
@@ -647,17 +642,17 @@ vec3 animation(vec2 pos, int section) {
 
   if (section == 5) {
     // 好きをもっと信じるのさ
-    return starTunnel(pos); //
+    return heartWithParticles(pos);
   }
 
   if (section == 6) {
     // 照らし出してグリーンライツ
-    return starWithParticles(pos);
+    return rectangleTunnel(pos);
   }
 
   if (section == 7) {
     // 堪えきれない夜には隣で泣いていいよ
-    return starWithParticles(pos);
+    return starTunnel(pos);
   }
 
   if (section == 8) {
@@ -672,20 +667,22 @@ vec3 animation(vec2 pos, int section) {
 
   if (section == 10) {
     // 振り返ると遠く手を振ってくれるキミも
-    return starWithParticles(pos);
+    return rectangleTunnel(pos);
   }
 
   if (section == 11) {
     // 誰にも真似できないあなたを抱きしめて
-    return starWithParticles(pos);
+    return rectangleTunnel(pos);
   }
 
   if (section == 12) {
     // outro
-    return starTunnel(pos);
+    return starWithParticles(pos);
   }
 
-  return vec3(0.0);  // should not reach here
+  // should not reach here
+  // but show some animation just in case
+  return starWithParticles(pos);
 }
 
 void main() {
