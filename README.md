@@ -1,12 +1,12 @@
 ## マジカルミライ2020プログラミングコンテスト応募作品
 
 <a href="https://youtu.be/bj0sZPhNi7A">
-<img src="demo.gif" width="80%">
+<img src="demo.gif" width="100%">
 </a>
 
 ## 実行方法
 
-WebGLを有効にしてください
+ブラウザのWebGLを有効にしてください
 
 ```
 git clone https://github.com/IshitaTakeshi/MagicalMirai2020.git
