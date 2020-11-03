@@ -4,8 +4,6 @@
 <img src="demo.gif" width="80%">
 </a>
 
-[![](./demo.gif)](https://youtu.be/bj0sZPhNi7A)
-
 ## 実行方法
 
 ```
