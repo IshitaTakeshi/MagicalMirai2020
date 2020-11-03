@@ -452,8 +452,7 @@ vec3 showShurikenTunnel(vec2 pos, float time) {
   for (int i = 0; i < n_layers; i++) {
     float g = fract(time + float(i) / float(n_layers));
     vec2 p = (pos + vec2(0.5 * (1.0-g), 0.0)) * mix(100.0, 0.0, g);
-    // divide by 5 to rotate 5 star
-    float angle = -2.0 * PI * float(i) / (float(n_layers) * 5.0);
+    float angle = -2.0 * PI * float(i) / (float(n_layers) * 4.0);
     mat2 rotation = mat2(cos(angle), -sin(angle),
 		                     sin(angle),  cos(angle));
     p = rotation * p;
