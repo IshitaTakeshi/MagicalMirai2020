@@ -621,7 +621,6 @@ vec3 beamsFromCenter(vec2 pos) {
 }
 
 vec3 animation(vec2 pos, int section) {
-  return shurikenTunnel(pos);
   if (section == 0) {
     // intro
     return starWithParticles(pos);
@@ -629,22 +628,22 @@ vec3 animation(vec2 pos, int section) {
 
   if (section == 1) {
     // 照らし出してグリーンライツ
-    return starWithParticles(pos);
+    return starTunnel(pos);
   }
 
   if (section == 2) {
     // 走り出したキミにもっと
-    return pentagonTunnel(pos);
+    return starWithParticles(pos);
   }
 
-  if (section == 2) {
+  if (section == 3) {
     // 照らし出してグリーンライツ
     return rectangleTunnel(pos);
   }
 
   if (section == 4) {
     // 今までもいつまでも隣にいたいのは
-    return horizontalBeams(pos);
+    return shurikenTunnel(pos);
   }
 
   if (section == 5) {
@@ -654,22 +653,22 @@ vec3 animation(vec2 pos, int section) {
 
   if (section == 6) {
     // 照らし出してグリーンライツ
-    return pentagonTunnel(pos);
+    return starWithParticles(pos);
   }
 
   if (section == 7) {
     // 堪えきれない夜には隣で泣いていいよ
-    return rectangleTunnel(pos);
+    return starWithParticles(pos);
   }
 
   if (section == 8) {
     // 走り出したキミにもっと
-    return starWithParticles(pos);
+    return starTunnel(pos);
   }
 
   if (section == 9) {
     // 照らし出してグリーンライツ
-    return starWithParticles(pos);
+    return starTunnel(pos);
   }
 
   if (section == 10) {
