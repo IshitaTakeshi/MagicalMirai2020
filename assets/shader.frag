@@ -667,7 +667,7 @@ vec3 animation(vec2 pos, int section) {
 
   if (section == 10) {
     // 振り返ると遠く手を振ってくれるキミも
-    return starTunnel(pos);
+    return rectangleTunnel(pos);
   }
 
   if (section == 11) {
