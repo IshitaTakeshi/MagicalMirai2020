@@ -1,15 +1,15 @@
 {
-  "name": "neon",
+  "name": "MagicalMirai2020",
   "private": true,
   "version": "1.0.0",
   "description": "WebGL を使った TextAlive App API の作例",
   "main": "index.js",
-  "homepage": "https://ishitatakeshi.github.io/textalive-neon1/",
+  "homepage": "https://ishitatakeshi.github.io/MagicalMirai2020/",
   "scripts": {
     "dev": "parcel src/index.html --out-dir dev",
     "build": "parcel build src/index.html --public-url ./ --out-dir docs --no-source-maps",
     "clean": "del-cli .cache dev docs",
-    "predeploy": "rm -rf docs && parcel build src/index.html --public-url https://ishitatakeshi.github.io/textalive-neon1/ --out-dir docs",
+    "predeploy": "rm -rf docs && parcel build src/index.html --public-url https://ishitatakeshi.github.io/MagicalMirai2020/ --out-dir docs",
     "deploy": "gh-pages -d docs"
   },
   "keywords": [
