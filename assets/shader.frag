@@ -313,6 +313,12 @@ vec3 showStar(vec2 pos, float size, vec3 rgb) {
   return calcColor(distance_, glow, rgb);
 }
 
+vec3 showTriangle(vec2 pos, float size, vec3 rgb, float angle) {
+  float distance_ = triangle(pos, size, angle);
+  float glow = 10.0 * glowMagnitude(distance_, radius, 8.0);
+  return calcColor(distance_, glow, rgb);
+}
+
 vec3 showRotatedRectangle(vec2 pos, float size, float theta, vec3 rgb) {
   float da = PI / 2.0;
   float angle1 = theta - da;
@@ -351,11 +357,27 @@ vec3 showStarTunnel(vec2 pos, float time) {
   for (int i = 0; i < n_layers; i++) {
     float g = fract(time + float(i) / float(n_layers));
     vec2 p = (pos + vec2(0.5 * (1.0-g), 0.0)) * mix(100.0, 0.0, g);
+    // divide by 5 to rotate 5 star
     float angle = -2.0 * PI * float(i) / (float(n_layers) * 5.0);
     mat2 rotation = mat2(cos(angle), -sin(angle),
 		                     sin(angle),  cos(angle));
     p = rotation * p;
     color += showStar(p, g, crypton_colors[i % N_COLORS]);
+  }
+  return color;
+}
+
+vec3 showTriangleTunnel(vec2 pos, float time) {
+  vec3 crypton_colors[N_COLORS] = getCryptonColors();
+
+  vec3 color = vec3(0.0);
+
+  int n_layers = N_COLORS * 4;
+  for (int i = 0; i < n_layers; i++) {
+    float g = fract(time + float(i) / float(n_layers));
+    vec2 p = (pos + vec2(0.5 * (1.0-g), 0.0)) * mix(100.0, 0.0, g);
+    float angle = -2.0 * PI * float(i) / (float(n_layers) * 3.0);
+    color += showTriangle(p, g, crypton_colors[i % N_COLORS], angle);
   }
   return color;
 }
@@ -505,6 +527,10 @@ vec3 rectangleTunnel(vec2 pos) {
 
 vec3 starTunnel(vec2 pos) {
   return showStarTunnel(pos, songTime * 0.0001);
+}
+
+vec3 triangleTunnel(vec2 pos) {
+  return showTriangleTunnel(pos, songTime * 0.0001);
 }
 
 vec3 horizontalBeams(vec2 pos) {
