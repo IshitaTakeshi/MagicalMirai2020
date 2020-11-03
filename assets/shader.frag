@@ -677,7 +677,7 @@ vec3 animation(vec2 pos, int section) {
 
   if (section == 12) {
     // outro
-    return starWithParticles(pos);
+    return starTunnel(pos);
   }
 
   // should not reach here
