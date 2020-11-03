@@ -317,22 +317,28 @@ vec3 calcColor(float distance_, float glowMagnitude, vec3 glowColor) {
 
 out vec4 fragColor;
 
-vec3 showRectangleFlower(vec2 pos, vec2 offset_, int n_petals) {
-  float d = 0.2;
+vec3 showShuriken(vec2 pos, float size, vec3 rgb) {
+  int n_petals = 4;
+  float d = size;
   vec3 color = vec3(0.0);
   for(int i = 0; i < n_petals; i++) {
-    float angle = float(i) * 2.0 * PI / float(n_petals);
-    float da = 2.0 * PI / (float(n_petals) * 16.0);
-    float angle1 = angle - da;
-    float angle2 = angle + da;
+    float dangle = 2.0 * PI / (float(n_petals) * 2.0);
+    float angle0 = float(i) * 2.0 * PI / float(n_petals);
+    float angle1 = angle0 - dangle;
+    float angle2 = angle0 + dangle;
     // vec2 p = pos - d * vec2(sin(angle), cos(angle));
-    vec2 p1 = vec2(cos(angle1), sin(angle1));
-    vec2 p2 = vec2(cos(angle2), sin(angle2));
-    float distance_ = rectangle(pos + offset_, d * p1, d * p2, 0.1);
-    // triangle(pos - d * vec2(sin(angle), cos(angle)), 0.01, angle);
-    float glow = 0.05 * glowMagnitude(distance_, 0.001, intensity);
-    float k = songTime * 0.00002;
-    vec3 rgb = hsv2rgb(vec3(k - round(k), 1.0, 1.0));
+    vec2 p0 = 0.5 * d * vec2(cos(angle0), sin(angle0));
+    vec2 p1 = 1.0 * d * vec2(cos(angle1), sin(angle1));
+    vec2 p2 = 1.0 * d * vec2(cos(angle2), sin(angle2));
+
+    float distance_, glow;
+
+    distance_ = udSegment(pos, p0, p1);
+    glow = 10.0 * glowMagnitude(distance_, radius, 8.0);
+    color += calcColor(distance_, glow, rgb);
+
+    distance_ = udSegment(pos, p0, p2);
+    glow = 10.0 * glowMagnitude(distance_, radius, 8.0);
     color += calcColor(distance_, glow, rgb);
   }
   return color;
@@ -413,8 +419,12 @@ vec3 showPentagonTunnel(vec2 pos, float time) {
   for (int i = 0; i < n_layers; i++) {
     float g = fract(time + float(i) / float(n_layers));
     vec2 p = (pos + vec2(0.5 * (1.0-g), 0.0)) * mix(100.0, 0.0, g);
-    float angle = -2.0 * PI * float(i) / (float(n_layers) * 3.0);
-    color += showTriangle(p, g, crypton_colors[i % N_COLORS], angle);
+    // divide by 5 to rotate 5 star
+    float angle = -2.0 * PI * float(i) / (float(n_layers) * 5.0);
+    mat2 rotation = mat2(cos(angle), -sin(angle),
+		                     sin(angle),  cos(angle));
+    p = rotation * p;
+    color += showPentagon(p, g, crypton_colors[i % N_COLORS]);
   }
   return color;
 }
@@ -430,6 +440,26 @@ vec3 showRectangleTunnel(vec2 pos, float time) {
     vec2 p = (pos - vec2(0.5 * (1.0-g), 0.0)) * mix(100.0, 0.0, g);
     color += showRotatedRectangle(p, g, 0.0, crypton_colors[i % N_COLORS]);
   }
+  return color;
+}
+
+vec3 showShurikenTunnel(vec2 pos, float time) {
+  vec3 crypton_colors[N_COLORS] = getCryptonColors();
+
+  vec3 color = vec3(0.0);
+
+  int n_layers = N_COLORS * 4;
+  for (int i = 0; i < n_layers; i++) {
+    float g = fract(time + float(i) / float(n_layers));
+    vec2 p = (pos + vec2(0.5 * (1.0-g), 0.0)) * mix(100.0, 0.0, g);
+    // divide by 5 to rotate 5 star
+    float angle = -2.0 * PI * float(i) / (float(n_layers) * 5.0);
+    mat2 rotation = mat2(cos(angle), -sin(angle),
+		                     sin(angle),  cos(angle));
+    p = rotation * p;
+    color += showShuriken(p, g, crypton_colors[i % N_COLORS]);
+  }
+
   return color;
 }
 
@@ -578,6 +608,10 @@ vec3 horizontalBeams(vec2 pos) {
   return color;
 }
 
+vec3 shurikenTunnel(vec2 pos) {
+  return showShurikenTunnel(pos, songTime * 0.0001);
+}
+
 vec3 beamsFromCenter(vec2 pos) {
   float center_object_size = getCenterObjectSize();
   vec3 color = vec3(0.0);
@@ -587,6 +621,7 @@ vec3 beamsFromCenter(vec2 pos) {
 }
 
 vec3 animation(vec2 pos, int section) {
+  return shurikenTunnel(pos);
   if (section == 0) {
     // intro
     return starWithParticles(pos);
